@@ -1,5 +1,5 @@
 import api from "./api.js";
-import ApiResponse from "@/types/generics/apiResponse.js";
+import ApiResponse from "@/types/generics/ApiResponse.js";
 import { handleApiError } from "./handleApiError.js";
 import {
   LoginRequestData,
