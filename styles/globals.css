@@ -1,0 +1,202 @@
+@import "tailwind/base";
+@import "tailwind/components";
+@import "tailwind/utilities";
+
+/* 🌍 Root Theme Variables */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* 🌸 Primary Colors */
+:root {
+  --primary-sakura-light: #f4c3cd;
+  --primary-sakura-regular: #e897a3;
+  --primary-sakura-dark: #c76576;
+
+  --primary-matcha-light: #d4e2c5;
+  --primary-matcha-regular: #a8c28b;
+  --primary-matcha-dark: #7c9b63;
+
+  --primary-softwhite-light: #ffffff;
+  --primary-softwhite-regular: #fdf7f4;
+  --primary-softwhite-dark: #ede8e4;
+}
+
+/* 🔵 Secondary Colors */
+:root {
+  --secondary-origami-light: #b7d3dd;
+  --secondary-origami-regular: #82aebe;
+  --secondary-origami-dark: #578c9c;
+
+  --secondary-lightpeach-light: #fbe3d0;
+  --secondary-lightpeach-regular: #f5c49a;
+  --secondary-lightpeach-dark: #d89b6a;
+
+  --secondary-washigray-light: #f2f2f2;
+  --secondary-washigray-regular: #e0ded8;
+  --secondary-washigray-dark: #2c2c2c;
+}
+
+/* 🟡 Accent Colors */
+:root {
+  --accent-vividcoral-light: #ffb3a7;
+  --accent-vividcoral-regular: #ff6b6b;
+  --accent-vividcoral-dark: #d84343;
+
+  --accent-goldenyellow-light: #ffeb99;
+  --accent-goldenyellow-regular: #ffc107;
+  --accent-goldenyellow-dark: #d69e00;
+
+  --accent-softlavender-light: #e4d9ff;
+  --accent-softlavender-regular: #b39ddb;
+  --accent-softlavender-dark: #8064a2;
+}
+
+/* ⚠️ Status Colors */
+:root {
+  --status-error-bg: var(--accent-vividcoral-light);
+  --status-error: var(--accent-vividcoral-regular);
+  --status-error-emphasis: var(--accent-vividcoral-dark);
+
+  --status-success-bg: var(--primary-matcha-light);
+  --status-success: var(--primary-matcha-regular);
+  --status-success-emphasis: var(--primary-matcha-dark);
+
+  --status-warning-bg: var(--accent-goldenyellow-light);
+  --status-warning: var(--accent-goldenyellow-regular);
+  --status-warning-emphasis: var(--accent-goldenyellow-dark);
+
+  --status-info-bg: #f7f9fc;
+  --status-info: #a3c7d6;
+  --status-info-emphasis: #4a4a4a;
+}
+
+/* 🎨 Theming Variables */
+:root {
+  --core-primary: var(--primary-sakura-regular);
+  --core-secondary: var(--primary-matcha-regular);
+  --core-accent: var(--accent-softlavender-regular);
+
+  --text-primary: var(--grayscale-gray-800);
+  --text-secondary: var(--grayscale-gray-700);
+  --text-tertiary: var(--grayscale-gray-600);
+  --text-error: var(--accent-vividcoral-regular);
+
+  --background-primary: var(--primary-softwhite-light);
+  --background-secondary: var(--info-light);
+  --background-tertiary: var(--secondary-washigray-light);
+  --background-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* 🌑 Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ededed;
+    --foreground: #0a0a0a;
+  }
+}
+
+/* 🔤 Typography */
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ============================= */
+/* 🏗️ Tailwind Components Layer */
+/* ============================= */
+@layer components {
+  /* ✅ Headings */
+  .text-h1 {
+    @apply font-quicksand font-bold text-text-emphasis text-fs-h1 leading-tight;
+  }
+  .text-h2 {
+    @apply font-quicksand font-bold text-text-emphasis text-fs-h2 leading-snug;
+  }
+  .text-h3 {
+    @apply font-quicksand font-bold text-text-emphasis text-fs-h3;
+  }
+  .text-h4 {
+    @apply font-quicksand font-bold text-text-emphasis text-fs-h4;
+  }
+  .text-h5 {
+    @apply font-quicksand font-semibold text-text-primary text-fs-h5;
+  }
+  .text-h6 {
+    @apply font-quicksand font-semibold text-text-primary text-fs-h6;
+  }
+
+  /* ✅ Body Text */
+  .text-body1 {
+    @apply font-jakarta font-regular text-text-primary text-fs-body1 leading-relaxed;
+  }
+  .text-body2 {
+    @apply font-jakarta font-regular text-text-secondary text-fs-body2 leading-normal;
+  }
+
+  /* ✅ Captions & Overlines */
+  .text-caption {
+    @apply font-jakarta font-regular uppercase text-text-tertiary text-fs-caption tracking-wide;
+  }
+  .text-overline {
+    @apply font-jakarta font-bold uppercase text-text-overline text-fs-overline tracking-widest;
+  }
+
+  /* ✅ Buttons */
+  .text-button {
+    @apply font-quicksand font-bold text-text-secondary text-fs-button;
+  }
+  .text-button-small {
+    @apply font-quicksand font-bold text-text-secondary text-fs-button-sm;
+  }
+
+  /* ✅ Input Labels */
+  .text-input-label {
+    @apply font-jakarta font-semibold text-text-primary text-fs-input-label;
+  }
+
+  /* ✅ Alerts & Navigation */
+  .text-alert {
+    @apply font-quicksand font-bold text-text-primary text-fs-alert;
+  }
+  .text-navigation-item {
+    @apply font-quicksand font-semibold text-text-primary text-fs-navigation-item;
+  }
+
+  /* ✅ Badges & Links */
+  .text-badge {
+    @apply font-jakarta font-medium uppercase text-text-tertiary text-fs-badge;
+  }
+  .text-link {
+    @apply font-jakarta font-regular underline text-blue-500 hover:text-blue-700 transition text-fs-link;
+  }
+
+  /* ✅ Cards */
+  .card-xl {
+    @apply bg-background-primary p-12 rounded-[2rem];
+  }
+  .card-large {
+    @apply bg-background-secondary p-8 rounded-2xl;
+  }
+  .card-medium {
+    @apply bg-background-secondary p-6 rounded-xl;
+  }
+  .card-small {
+    @apply bg-background-secondary p-4 rounded-xl;
+  }
+
+  /* ✅ Buttons */
+  .btn-primary {
+    @apply bg-button-bg text-button-fg px-4 py-2 rounded-2xl size-fit;
+  }
+
+  /* ✅ Input Components */
+  .input-group {
+    @apply text-gray-700 text-xl font-medium mb-8;
+  }
+  .input-textfield {
+    @apply bg-textfield-bg w-full border-textfield-border px-4 py-2 rounded-lg;
+  }
+}
