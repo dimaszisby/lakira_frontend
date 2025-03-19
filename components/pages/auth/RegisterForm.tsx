@@ -40,8 +40,15 @@ const RegisterForm = () => {
       setIsLoading(true);
       setServerErrors([]);
 
+      // Note: We are setting the `isPublicProfile` to `true` by default
+      // Public profile will be implemented in a future release
+      const finalData: CreateUserSchemaType = {
+        ...data,
+        isPublicProfile: true,
+      };
+
       try {
-        const response = await registerUser(data);
+        const response = await registerUser(finalData);
         console.log("Register API Response:", response);
 
         if (response.data?.token) {
@@ -146,12 +153,6 @@ const RegisterForm = () => {
               {errors.passwordConfirmation.message}
             </span>
           )}
-        </div>
-
-        {/* Public Profile Toggle */}
-        <div className="mb-6 flex items-center gap-2">
-          <input type="checkbox" {...register("isPublicProfile")} />
-          <label className="text-body">Make my profile public</label>
         </div>
 
         <button
