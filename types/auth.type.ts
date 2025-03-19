@@ -1,6 +1,6 @@
 // types/authType.ts
 
-import { UserAtom } from "@/atoms/userAtom";
+import { UserAtom } from "@/state/atoms";
 
 /**
  * Represents the request data parameters for register.

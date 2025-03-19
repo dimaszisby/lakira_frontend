@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAtom } from "jotai";
-import { userAtom } from "@/atoms/userAtom";
+import { userAtom } from "@/state/atoms";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import Layout from "@/components/layout/Layout";

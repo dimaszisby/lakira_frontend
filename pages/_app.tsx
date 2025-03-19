@@ -1,6 +1,6 @@
 // pages/_app.tsx
 
-import "@/styles/globals.css"; // Import global styles
+import "@/styles/globals.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { useState } from "react";
@@ -27,7 +27,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <div className={`${quicksand.variable} ${plusJakartaSans.variable}`}>
+    <div className={`${quicksand.className} ${plusJakartaSans.className}`}>
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           {/* Ensures hydration for server-side data fetching */}
