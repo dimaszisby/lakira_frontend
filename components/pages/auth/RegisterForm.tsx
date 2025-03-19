@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtom } from "jotai";
 import { useRouter } from "next/router";
 import { handleApiError } from "../../../utils/handleApiError";
-import { userAtom } from "../../../atoms/userAtom";
+import { userAtom } from "../../../state/atoms";
 import { registerUser } from "../../../utils/auth.js";
 import {
   createUserSchema,

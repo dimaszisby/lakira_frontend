@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useAtom } from "jotai";
 import { useRouter } from "next/router";
-import { userAtom } from "@/atoms/userAtom";
+import { userAtom } from "@/state/atoms";
 import { loginUser } from "@/utils/auth";
 import { handleApiError } from "@/utils/handleApiError";
 
