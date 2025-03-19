@@ -1,6 +1,6 @@
-import RegisterForm from "../../components/pages/auth/RegisterForm.js";
-import Layout from "../../components/layout/Layout.js";
 import Head from "next/head";
+import RegisterForm from "@/components/pages/auth/RegisterForm";
+import Layout from "@/components/layout/Layout";
 
 const RegisterPage = () => {
   return (

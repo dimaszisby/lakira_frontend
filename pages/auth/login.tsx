@@ -1,5 +1,5 @@
 import Head from "next/head";
-import LoginForm from "../../components/pages/auth/LoginForm";
+import LoginForm from "@/components/pages/auth/LoginForm";
 import Layout from "@/components/layout/Layout";
 
 const LoginPage = () => {
