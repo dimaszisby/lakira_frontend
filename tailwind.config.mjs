@@ -1,15 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}", // Supports scalable project structure
-    "./app/**/*.{js,ts,jsx,tsx,mdx}", // Next.js App Router support
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}", // Legacy Pages Router support
-    "./components/**/*.{js,ts,jsx,tsx,mdx}", // UI components and design system
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
-      // Font Family Configuration (Using CSS Variables)
+      /*
+       * Font Family Setup
+       * Using "Quicksand" and "Plus Jakarta Sans" as the main fonts
+       */
       fontFamily: {
+        // Use the CSS variables set in your layout file
         sans: [
           "var(--font-quicksand)",
           "var(--font-plus-jakarta)",
@@ -19,9 +22,12 @@ export default {
         jakarta: ["var(--font-plus-jakarta)", "sans-serif"],
       },
 
-      // Font Sizes with Line Height
+      /*
+       * Unified Font Sizes with line-heights
+       * Named using 'fs-' prefix for consistency
+       */
       fontSize: {
-        "fs-h1": ["3rem", { lineHeight: "1.2" }], // 48px
+        "fs-h1": ["3rem", { lineHeight: "1.2" }], // 48px with custom line height
         "fs-h2": ["2.25rem", { lineHeight: "1.3" }], // 36px
         "fs-h3": ["1.75rem", { lineHeight: "1.4" }], // 28px
         "fs-h4": ["1.5rem", { lineHeight: "1.5" }], // 24px
@@ -42,7 +48,9 @@ export default {
         "fs-link": ["0.875rem", { lineHeight: "1.5" }], // 14px
       },
 
-      // Font Weights
+      /*
+       * Font Weights
+       */
       fontWeight: {
         regular: "400",
         medium: "500",
@@ -50,19 +58,25 @@ export default {
         bold: "700",
       },
 
-      // Color System (Using CSS Variables for Theme Management)
+      /*
+       * Unified Color System
+       * Using CSS variables from :root for dynamic theming
+       */
       colors: {
+        // Example core brand colors
         core: {
           primary: "var(--core-primary)",
           secondary: "var(--core-secondary)",
           accent: "var(--core-accent)",
         },
+
+        // Example text color tokens
         text: {
           emphasis: "var(--text-emphasis)",
           primary: "var(--text-primary)",
           secondary: "var(--text-secondary)",
           tertiary: "var(--text-tertiary)",
-          overline: "var(--text-overline)",
+          overline: "var(--text-tertiary)",
           error: "var(--text-error)",
           placeholder: "var(--text-placeholder)",
           disabled: "var(--text-disabled)",
@@ -90,6 +104,8 @@ export default {
             emphasis: "var(--status-info-emphasis)",
           },
         },
+
+        // Example background color tokens
         background: {
           primary: "var(--background-primary)",
           secondary: "var(--background-secondary)",
@@ -97,12 +113,16 @@ export default {
           overlay: "var(--background-overlay)",
           disabled: "var(--background-disabled)",
         },
+
+        // Example border color tokens
         border: {
           DEFAULT: "var(--border-default)",
           active: "var(--border-active)",
           error: "var(--border-error)",
           focus: "var(--border-focus)",
         },
+
+        // Example button color tokens
         button: {
           bg: {
             DEFAULT: "var(--button-bg)",
@@ -119,6 +139,8 @@ export default {
             destructive: "var(--button-fg-destructive)",
           },
         },
+
+        // Example textfield color tokens
         textfield: {
           bg: "var(--textfield-bg)",
           fg: "var(--textfield-fg)",

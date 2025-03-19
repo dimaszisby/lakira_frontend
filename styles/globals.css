@@ -1,15 +1,15 @@
-@import "tailwind/base";
-@import "tailwind/components";
-@import "tailwind/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* 🌍 Root Theme Variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
-/* 🌸 Primary Colors */
 :root {
+  /* * Primary Color */
+  /* 🌸 Primary Colors */
   --primary-sakura-light: #f4c3cd;
   --primary-sakura-regular: #e897a3;
   --primary-sakura-dark: #c76576;
@@ -21,10 +21,8 @@
   --primary-softwhite-light: #ffffff;
   --primary-softwhite-regular: #fdf7f4;
   --primary-softwhite-dark: #ede8e4;
-}
 
-/* 🔵 Secondary Colors */
-:root {
+  /* 🔵 Secondary Colors */
   --secondary-origami-light: #b7d3dd;
   --secondary-origami-regular: #82aebe;
   --secondary-origami-dark: #578c9c;
@@ -36,10 +34,8 @@
   --secondary-washigray-light: #f2f2f2;
   --secondary-washigray-regular: #e0ded8;
   --secondary-washigray-dark: #2c2c2c;
-}
 
-/* 🟡 Accent Colors */
-:root {
+  /* 🟡 Accent Colors */
   --accent-vividcoral-light: #ffb3a7;
   --accent-vividcoral-regular: #ff6b6b;
   --accent-vividcoral-dark: #d84343;
@@ -51,10 +47,44 @@
   --accent-softlavender-light: #e4d9ff;
   --accent-softlavender-regular: #b39ddb;
   --accent-softlavender-dark: #8064a2;
+
+  /* 🟡 Info Colors */
+  --info-light: #f7f9fc;
+  --info-regular: #a3c7d6;
+  --info-dark: #4a4a4a;
+
+  /* Grayscale Colors */
+  --grayscale-white: #ffffff;
+  --grayscale-gray-100: #f2f2f2;
+  --grayscale-gray-200: #ebebeb;
+  --grayscale-gray-300: #d9d9d9;
+  --grayscale-gray-400: #a6a6a6;
+  --grayscale-gray-500: #8c8c8c;
+  --grayscale-gray-600: #737373;
+  --grayscale-gray-700: #5c5c5c;
+  --grayscale-gray-800: #4a4a4a;
+  --grayscale-gray-900: #2c2c2c;
+  --grayscale-black: #000000;
 }
 
-/* ⚠️ Status Colors */
 :root {
+  /* *Core */
+  --core-primary: var(--primary-sakura-regular);
+  --core-secondary: var(--primary-matcha-regular);
+  --core-accent: var(--accent-softlavender-regular);
+
+  /* 🌐 Text Colors */
+  --text-emphasis: var(--grayscale-gray-900);
+  --text-primary: var(--grayscale-gray-800);
+  --text-secondary: var(--grayscale-gray-700);
+  --text-tertiary: var(--grayscale-gray-600);
+  --text-overline: var(--secondary-origami-dark);
+  --text-error: var(--accent-vividcoral-regular);
+  --text-placeholder: var(--grayscale-gray-500);
+  --text-disabled: var(--grayscale-gray-400);
+  --text-inverted: var(--grayscale-white); /* For dark backgrounds */
+
+  /* ⚠️ Status Colors */
   --status-error-bg: var(--accent-vividcoral-light);
   --status-error: var(--accent-vividcoral-regular);
   --status-error-emphasis: var(--accent-vividcoral-dark);
@@ -67,29 +97,47 @@
   --status-warning: var(--accent-goldenyellow-regular);
   --status-warning-emphasis: var(--accent-goldenyellow-dark);
 
-  --status-info-bg: #f7f9fc;
-  --status-info: #a3c7d6;
-  --status-info-emphasis: #4a4a4a;
-}
+  --status-info-bg: var(--info-light);
+  --status-info: var(--info-regular);
+  --status-info-emphasis: var(--info-dark);
 
-/* 🎨 Theming Variables */
-:root {
-  --core-primary: var(--primary-sakura-regular);
-  --core-secondary: var(--primary-matcha-regular);
-  --core-accent: var(--accent-softlavender-regular);
-
-  --text-primary: var(--grayscale-gray-800);
-  --text-secondary: var(--grayscale-gray-700);
-  --text-tertiary: var(--grayscale-gray-600);
-  --text-error: var(--accent-vividcoral-regular);
-
+  /* 📌 Background Colors */
   --background-primary: var(--primary-softwhite-light);
   --background-secondary: var(--info-light);
   --background-tertiary: var(--secondary-washigray-light);
   --background-overlay: rgba(0, 0, 0, 0.5);
+  --background-disabled: var(--grayscale-gray-400);
+
+  /* 🛑 Borders & Dividers */
+  --border-default: var(--secondary-origami-light);
+  --border-active: var(--accent-softlavender-regular);
+  --border-error: var(--accent-vividcoral-regular);
+  --border-focus: var(--core-primary);
+
+  /* * Interaction */
+  /* Button */
+  --button-bg: var(--core-primary);
+  --button-bg-secondary: var(--core-secondary);
+  --button-bg-accent: var(--core-accent);
+  --button-bg-disabled: var(--grayscale-gray-400);
+  --button-bg-destructive: var(--status-error);
+
+  --button-fg: var(--grayscale-white);
+  --button-fg-secondary: var(--grayscale-white);
+  --button-fg-accent: var(--grayscale-white);
+  --button-fg-disabled: var(--grayscale-gray-600);
+  --button-fg-destructive: var(--grayscale-white);
+
+  /* Textfield */
+  --textfield-bg: var(--background-secondary);
+  --textfield-fg: var(--text-primary);
+  --textfield-bg-disabled: var(--background-disabled);
+  --textfield-fg-disabled: var(--text-disabled);
+  --textfield-border: var(--border-default);
+  --textfield-border-active: var(--border-focus);
+  --textfield-border-error: var(--border-error);
 }
 
-/* 🌑 Dark Mode */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #ededed;
@@ -97,33 +145,53 @@
   }
 }
 
-/* 🔤 Typography */
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* ============================= */
-/* 🏗️ Tailwind Components Layer */
-/* ============================= */
+@layer components {
+  /* Text */
+  .text-page-title {
+    @apply text-black text-5xl font-bold;
+  }
+
+  .text-segment-title {
+    @apply text-gray-800 text-2xl font-bold;
+  }
+
+  .text-segment-title {
+    @apply text-gray-800 text-2xl font-bold;
+  }
+
+  .text-component-title {
+    @apply text-gray-700 text-lg font-medium;
+  }
+}
+
 @layer components {
   /* ✅ Headings */
   .text-h1 {
     @apply font-quicksand font-bold text-text-emphasis text-fs-h1 leading-tight;
   }
+
   .text-h2 {
     @apply font-quicksand font-bold text-text-emphasis text-fs-h2 leading-snug;
   }
+
   .text-h3 {
     @apply font-quicksand font-bold text-text-emphasis text-fs-h3;
   }
+
   .text-h4 {
     @apply font-quicksand font-bold text-text-emphasis text-fs-h4;
   }
+
   .text-h5 {
     @apply font-quicksand font-semibold text-text-primary text-fs-h5;
   }
+
   .text-h6 {
     @apply font-quicksand font-semibold text-text-primary text-fs-h6;
   }
@@ -132,14 +200,16 @@ body {
   .text-body1 {
     @apply font-jakarta font-regular text-text-primary text-fs-body1 leading-relaxed;
   }
+
   .text-body2 {
     @apply font-jakarta font-regular text-text-secondary text-fs-body2 leading-normal;
   }
 
-  /* ✅ Captions & Overlines */
+  /* ✅ Caption, Overline, & Small Text */
   .text-caption {
     @apply font-jakarta font-regular uppercase text-text-tertiary text-fs-caption tracking-wide;
   }
+
   .text-overline {
     @apply font-jakarta font-bold uppercase text-text-overline text-fs-overline tracking-widest;
   }
@@ -148,19 +218,30 @@ body {
   .text-button {
     @apply font-quicksand font-bold text-text-secondary text-fs-button;
   }
+
   .text-button-small {
-    @apply font-quicksand font-bold text-text-secondary text-fs-button-sm;
+    @apply font-quicksand font-bold text-text-secondary text-fs-button-small;
   }
 
-  /* ✅ Input Labels */
+  /* ✅ Input Label */
   .text-input-label {
     @apply font-jakarta font-semibold text-text-primary text-fs-input-label;
   }
 
-  /* ✅ Alerts & Navigation */
+  /* ✅ Footer & Tooltip */
+  .text-footer {
+    @apply font-jakarta font-regular text-text-tertiary text-fs-footer;
+  }
+
+  .text-tooltip {
+    @apply font-jakarta font-regular text-text-tertiary text-fs-tooltip;
+  }
+
+  /* ✅ Alerts & Notifications */
   .text-alert {
     @apply font-quicksand font-bold text-text-primary text-fs-alert;
   }
+
   .text-navigation-item {
     @apply font-quicksand font-semibold text-text-primary text-fs-navigation-item;
   }
@@ -169,33 +250,40 @@ body {
   .text-badge {
     @apply font-jakarta font-medium uppercase text-text-tertiary text-fs-badge;
   }
+
   .text-link {
     @apply font-jakarta font-regular underline text-blue-500 hover:text-blue-700 transition text-fs-link;
   }
+}
 
-  /* ✅ Cards */
+@layer components {
+  /* ✅ Card */
   .card-xl {
     @apply bg-background-primary p-12 rounded-[2rem];
   }
+
   .card-large {
     @apply bg-background-secondary p-8 rounded-2xl;
   }
+
   .card-medium {
     @apply bg-background-secondary p-6 rounded-xl;
   }
+
   .card-small {
     @apply bg-background-secondary p-4 rounded-xl;
   }
+}
 
-  /* ✅ Buttons */
+@layer components {
   .btn-primary {
     @apply bg-button-bg text-button-fg px-4 py-2 rounded-2xl size-fit;
   }
 
-  /* ✅ Input Components */
   .input-group {
     @apply text-gray-700 text-xl font-medium mb-8;
   }
+
   .input-textfield {
     @apply bg-textfield-bg w-full border-textfield-border px-4 py-2 rounded-lg;
   }
