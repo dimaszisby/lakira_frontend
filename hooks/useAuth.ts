@@ -4,6 +4,7 @@ import { useAtom } from "jotai";
 import { UserAtom, userAtom } from "@/state/atoms";
 import { useRouter } from "next/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   fetchUserProfile,
   loginUser,
@@ -33,10 +34,12 @@ export function useAuth() {
     retry: false, // Don't retry if authentication fails
   });
 
-  // Ensure state is updated properly
-  if (userData !== undefined && userData !== user) {
-    setUser(userData);
-  }
+  // Update state in a useEffect to avoid state updates during render
+  useEffect(() => {
+    if (userData !== undefined && userData !== user) {
+      setUser(userData);
+    }
+  }, [userData, user, setUser]);
 
   // Login Mutation
   const loginMutation = useMutation<AuthResponse, Error, LoginRequestData>({
