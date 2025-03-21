@@ -1,49 +1,81 @@
 // hooks/useAuth.ts
+
 import { useAtom } from "jotai";
-import { userAtom } from "@/state/atoms";
-import { useEffect, useState } from "react";
+import { UserAtom, userAtom } from "@/state/atoms";
 import { useRouter } from "next/router";
-import { fetchUserProfile } from "@/utils/auth";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchUserProfile,
+  loginUser,
+  registerUser,
+  logoutUser,
+} from "@/utils/auth";
+import {
+  LoginRequestData,
+  RegisterUserData,
+  AuthResponse,
+} from "@/types/auth.type";
 
 /**
- * Custom Hook to handle authentication and user state.
- * Redirects unauthenticated users to the login page.
+ * Custom Hook to handle authentication state.
+ * - Uses `useMutation` for login & register.
+ * - Uses `useQuery` for fetching user profile.
  */
 export function useAuth() {
   const [user, setUser] = useAtom(userAtom);
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient(); // ✅ Use queryClient to update cache
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("token");
+  // Fetch user profile using `useQuery`
+  const { data: userData, isLoading } = useQuery<UserAtom | null, Error>({
+    queryKey: ["userProfile"],
+    queryFn: fetchUserProfile,
+    retry: false, // Don't retry if authentication fails
+  });
 
-      if (!token) {
-        setUser(null);
-        router.replace("/auth/login");
-        return;
-      }
+  // Ensure state is updated properly
+  if (userData !== undefined && userData !== user) {
+    setUser(userData);
+  }
 
-      // Fetch user profile, now safely returns `null` on failure
-      const userData = await fetchUserProfile();
+  // Login Mutation
+  const loginMutation = useMutation<AuthResponse, Error, LoginRequestData>({
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.token!); // ✅ Ensure token is stored
+      setUser(data.user!);
+      queryClient.setQueryData(["userProfile"], data.user); // ✅ Update cache
+      router.push("/dashboard"); // Redirect after login
+    },
+  });
 
-      if (userData) {
-        setUser(userData);
-      } else {
-        localStorage.removeItem("token");
-        setUser(null); // ✅ Ensure it's null instead of undefined
-        router.replace("/auth/login");
-      }
+  // Register Mutation
+  const registerMutation = useMutation<AuthResponse, Error, RegisterUserData>({
+    mutationFn: registerUser,
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.token!);
+      setUser(data.user!);
+      queryClient.setQueryData(["userProfile"], data.user);
+      router.push("/dashboard"); // Redirect after registration
+    },
+  });
 
-      setLoading(false);
-    };
+  // Logout Mutation
+  const logoutMutation = useMutation({
+    mutationFn: logoutUser,
+    onSuccess: () => {
+      localStorage.removeItem("token");
+      setUser(null);
+      queryClient.setQueryData(["userProfile"], null); // ✅ Reset cache
+      router.push("/auth/login"); // Redirect after logout
+    },
+  });
 
-    if (!user) {
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
-  }, [user, setUser, router]);
-
-  return { user, loading };
+  return {
+    user: userData || user,
+    isLoading,
+    login: loginMutation.mutate,
+    register: registerMutation.mutate,
+    logout: logoutMutation.mutate,
+  };
 }
