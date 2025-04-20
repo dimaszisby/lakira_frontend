@@ -3,6 +3,8 @@ import { z } from "zod";
 // Internal validation schemas
 import {
   createMetricSchema,
+  deleteMetricSchema,
+  getMetricSchema,
   updateMetricSchema,
 } from "@/types/api/zod-metric.schema";
 
@@ -17,6 +19,9 @@ import { MetricLogResponseDTO } from "./metric-log.dto";
  * These interfaces and types are used for incoming and outgoing API requests and responses,
  * defining the structure of data exchanged between the client and server.
  */
+
+// * Respose DTOs
+
 
 /**
  * @interface MetricResponseDTO
@@ -231,6 +236,8 @@ export interface UserMetricDetailResponseDTO {
   readonly logs?: MetricLogResponseDTO[] | null;
 }
 
+// * Request DTOs
+
 /**
  * @typedef CreateMetricRequestDTO
  * @description Represents the expected structure of the request body when creating a new metric.
@@ -248,3 +255,17 @@ export type CreateMetricRequestDTO = z.infer<
 export type UpdateMetricRequestDTO = z.infer<
   typeof updateMetricSchema.shape.body
 >;
+
+/**
+ * @typedef GetMetricRequestDTO
+ * @description Represents the expected structure of the request parameters when retrieving a specific metric.
+ * Inferred from the Zod schema for validation.
+ */
+export type GetMetricInput = z.infer<typeof getMetricSchema>["params"];
+
+/**
+ * @typedef DeleteMetricRequestDTO
+ * @description Represents the expected structure of the request parameters when deleting a specific metric.
+ * Inferred from the Zod schema for validation.
+ */
+export type DeleteMetricInput = z.infer<typeof deleteMetricSchema>["params"];
