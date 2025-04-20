@@ -1,16 +1,15 @@
-// compnent/ui/Modal.tsx
-
 "use client";
 
 import { ReactNode } from "react";
+import { X } from "phosphor-react";
 
-interface ModalProps {
+interface Modal {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
 }
 
-export default function Modal({ isOpen, onClose, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, children }: Modal) {
   if (!isOpen) return null;
 
   return (
@@ -21,11 +20,11 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
     >
       <div className="bg-white rounded-lg shadow-lg p-6 relative">
         <button
-          className="absolute top-2 right-2 text-gray-700 hover:text-red-500"
+          className="absolute top-4 right-4 text-gray-700 hover:text-red-500"
           onClick={onClose}
           aria-label="Close Modal"
         >
-          ❌
+          <X size={24} />
         </button>
         {children}
       </div>
