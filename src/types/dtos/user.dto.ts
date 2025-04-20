@@ -6,6 +6,16 @@
  * DTOs are often immutable.
  */
 
+import { UserAtom } from "@/state/atoms";
+import {
+  createUserSchema,
+  loginUserSchema,
+  updateUserSchema,
+} from "../api/zod-user.schema";
+import { z } from "zod";
+
+// * Response DTOs
+
 /**
  * @interface UserResponseDTO
  * @description Represents the structure of a User object as returned in API responses (e.g., on login, profile retrieval).
@@ -53,3 +63,35 @@ export interface UserResponseDTO {
    */
   readonly updatedAt: string;
 }
+
+/**
+ * Defines the structure of authentication-related API responses.
+ */
+// TODO: Add documentation
+export interface AuthResponseDTO {
+  token?: string;
+  user?: UserAtom;
+}
+
+// * Request DTOs
+
+/**
+ * @typedef CreateUserRequestDTO
+ * @description Represents the expected structure of the request body when creating a new user.
+ * Inferred from the Zod schema for validation.
+ */
+export type CreateUserRequestDTO = z.infer<typeof createUserSchema.shape.body>;
+
+/**
+ * @typedef UpdateUserRequestDTO
+ * @description Represents the expected structure of the request body when updating an existing user.
+ * Inferred from the Zod schema for validation.
+ */
+export type UpdateUserRequestDTO = z.infer<typeof updateUserSchema.shape.body>;
+
+/**
+ * @typedef LoginRequestDTO
+ * @description Represents the expected structure of the request body when logging in a user.
+ * Inferred from the Zod schema for validation.
+ */
+export type LoginRequestDTO = z.infer<typeof loginUserSchema.shape.body>;

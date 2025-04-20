@@ -34,8 +34,6 @@ export const createUserSchema = z.object({
     }),
 });
 
-export type CreateUserRequestDTO = z.infer<typeof createUserSchema.shape.body>;
-
 /**
  * Update User Schema
  * Used for validating incoming data when updating a user.
@@ -50,7 +48,12 @@ export const updateUserSchema = z.object({
   }),
 });
 
-export type UpdateUserRequestDTO = z.infer<typeof updateUserSchema.shape.body>;
+export const loginUserSchema = z.object({
+  body: z.object({
+    email: zEmail,
+    password: zPassword,
+  }),
+});
 
 // src/types/api/zod-user.schema.ts
 
