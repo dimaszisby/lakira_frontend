@@ -7,11 +7,8 @@ import { useRouter } from "next/router";
 import { userAtom } from "@/state/atoms";
 import { loginUser } from "@/utils/auth";
 import { handleApiError } from "@/utils/handleApiError";
-
-import {
-  LoginSchemaType,
-  loginSchema,
-} from "@/types/validators/authSchema.validator";
+import { LoginRequestDTO } from "@/src/types/dtos/user.dto";
+import { loginUserSchema } from "@/types/api/zod-user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const LoginForm = () => {
@@ -20,7 +17,9 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginSchemaType>({ resolver: zodResolver(loginSchema) });
+  } = useForm<LoginRequestDTO>({
+    resolver: zodResolver(loginUserSchema.shape.body),
+  });
 
   // Jotai state management for user session
   const [, setUser] = useAtom(userAtom);
@@ -37,7 +36,7 @@ const LoginForm = () => {
    * Uses `useCallback` to optimize re-renders.
    */
   const onSubmit = useCallback(
-    async (data: LoginSchemaType) => {
+    async (data: LoginRequestDTO) => {
       setIsLoading(true);
       setServerErrors([]); // Reset errors before submission
 
@@ -46,7 +45,7 @@ const LoginForm = () => {
         console.log("Login API Response:", response); // Debug log
 
         // Ensure token exists before storing it
-        const token = response.data?.token;
+        const token = response.token;
         if (token) {
           localStorage.setItem("token", token);
         } else {
@@ -54,7 +53,7 @@ const LoginForm = () => {
         }
 
         // Ensure user data exists before setting the state
-        const user = response.data?.user;
+        const user = response.user;
         if (user) {
           setUser(user);
         } else {

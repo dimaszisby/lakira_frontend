@@ -6,10 +6,8 @@ import { useRouter } from "next/router";
 import { userAtom } from "@/state/atoms";
 import { handleApiError } from "@/utils/handleApiError";
 import { registerUser } from "@/utils/auth";
-import {
-  createUserSchema,
-  CreateUserSchemaType,
-} from "@/types/validators/authSchema.validator";
+import { createUserSchema } from "@/types/api/zod-user.schema";
+import { CreateUserRequestDTO } from "@/src/types/dtos/user.dto";
 
 const RegisterForm = () => {
   const {
@@ -17,8 +15,8 @@ const RegisterForm = () => {
     handleSubmit,
     formState: { errors, isValid },
     watch,
-  } = useForm<CreateUserSchemaType>({
-    resolver: zodResolver(createUserSchema),
+  } = useForm<CreateUserRequestDTO>({
+    resolver: zodResolver(createUserSchema.shape.body),
     mode: "onChange",
   });
 
@@ -36,13 +34,13 @@ const RegisterForm = () => {
    * Uses `useCallback` to optimize re-renders.
    */
   const onSubmit = useCallback(
-    async (data: CreateUserSchemaType) => {
+    async (data: CreateUserRequestDTO) => {
       setIsLoading(true);
       setServerErrors([]);
 
       // Note: We are setting the `isPublicProfile` to `true` by default
       // Public profile will be implemented in a future release
-      const finalData: CreateUserSchemaType = {
+      const finalData: CreateUserRequestDTO = {
         ...data,
         isPublicProfile: true,
       };
@@ -51,14 +49,14 @@ const RegisterForm = () => {
         const response = await registerUser(finalData);
         console.log("Register API Response:", response);
 
-        if (response.data?.token) {
-          localStorage.setItem("token", response.data.token);
+        if (response.token) {
+          localStorage.setItem("token", response.token);
         } else {
           throw new Error("Token missing in response.");
         }
 
-        if (response.data?.user) {
-          setUser(response.data.user);
+        if (response.user) {
+          setUser(response.user);
         } else {
           throw new Error("User data missing in response.");
         }
@@ -127,6 +125,7 @@ const RegisterForm = () => {
             {...register("password")}
             className="input-textfield"
             type="password"
+            autoComplete="new-password"
           />
           {errors.password && (
             <span className="text-footer text-text-error block mt-2">
@@ -142,6 +141,7 @@ const RegisterForm = () => {
             {...register("passwordConfirmation")}
             className="input-textfield"
             type="password"
+            autoComplete="new-password"
           />
           {passwordConfirmation && password !== passwordConfirmation && (
             <span className="text-footer text-text-error block mt-2">
