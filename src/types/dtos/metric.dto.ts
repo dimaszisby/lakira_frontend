@@ -22,7 +22,6 @@ import { MetricLogResponseDTO } from "./metric-log.dto";
 
 // * Respose DTOs
 
-
 /**
  * @interface MetricResponseDTO
  * @description Represents the structure of a Metric object as returned in basic API responses (e.g., after create/update).

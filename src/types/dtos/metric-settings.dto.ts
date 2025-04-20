@@ -41,6 +41,8 @@ export interface DisplayOptionsDTO {
   readonly color?: string;
 }
 
+// * Response DTOs
+
 /**
  * @interface MetricSettingsResponseDTO
  * @description Represents the structure of a MetricSettings object as returned in API responses.
@@ -122,6 +124,8 @@ export interface MetricSettingsResponseDTO {
    */
   readonly updatedAt: string;
 }
+
+// * Request DTOs
 
 /**
  * @typedef CreateMetricSettingsRequestDTO

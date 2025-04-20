@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   createMetricCategorySchema,
   updateMetricCategorySchema,
-} from "@/types/api/metric-category.schema";
+} from "@/src/types/api/zod-metric-category.schema";
 
 /**
  * @file src/types/dtos/metric-category.dto.ts
@@ -13,6 +13,8 @@ import {
  * defining the structure of data exchanged between the client and server.
  * DTOs are often immutable.
  */
+
+// * Response DTOs
 
 /**
  * @interface MetricCategoryResponseDTO
@@ -61,6 +63,8 @@ export interface MetricCategoryResponseDTO {
    */
   readonly deletedAt?: string | null;
 }
+
+// * Request DTOs
 
 /**
  * @typedef CreateMetricCategoryRequestDTO

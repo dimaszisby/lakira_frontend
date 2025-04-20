@@ -14,6 +14,8 @@ import {
  * DTOs are often immutable.
  */
 
+// * Response DTOs
+
 /**
  * @interface MetricLogResponseDTO
  * @description Represents the structure of a MetricLog object as returned in API responses.
@@ -67,6 +69,8 @@ export interface MetricLogResponseDTO {
  * @description Represents a list (array) of MetricLogResponseDTO objects, typically returned in API responses for collections of metric logs.
  */
 export type MetricLogListResponseDTO = MetricLogResponseDTO[];
+
+// * Request DTOs
 
 /**
  * @typedef CreateMetricLogRequestDTO
