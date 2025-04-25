@@ -8,51 +8,60 @@
 }
 
 :root {
-  /* * Primary Color */
+  /* * Core Colors */
+  --core-primary: var(--primary-sakura-500);
+  --core-secondary: var(--primary-matcha-500);
+  --core-accent: var(--accent-softlavender-500);
+
+  /* * Primary Colors */
   /* 🌸 Primary Colors */
-  --primary-sakura-light: #f4c3cd;
-  --primary-sakura-regular: #e897a3;
-  --primary-sakura-dark: #c76576;
+  --primary-sakura-100: #f4c3cd;
+  --primary-sakura-500: #e897a3;
+  --primary-sakura-700: #c76576;
 
-  --primary-matcha-light: #d4e2c5;
-  --primary-matcha-regular: #a8c28b;
-  --primary-matcha-dark: #7c9b63;
+  --primary-matcha-100: #d4e2c5;
+  --primary-matcha-500: #a8c28b;
+  --primary-matcha-700: #7c9b63;
 
-  --primary-softwhite-light: #ffffff;
-  --primary-softwhite-regular: #fdf7f4;
-  --primary-softwhite-dark: #ede8e4;
+  --primary-softwhite-100: #ffffff;
+  --primary-softwhite-500: #fdf7f4;
+  --primary-softwhite-700: #ede8e4;
 
+  /* * Secondary Colors */
   /* 🔵 Secondary Colors */
-  --secondary-origami-light: #b7d3dd;
-  --secondary-origami-regular: #82aebe;
-  --secondary-origami-dark: #578c9c;
+  --secondary-origami-100: #b7d3dd;
+  --secondary-origami-500: #82aebe;
+  --secondary-origami-700: #578c9c;
 
-  --secondary-lightpeach-light: #fbe3d0;
-  --secondary-lightpeach-regular: #f5c49a;
-  --secondary-lightpeach-dark: #d89b6a;
+  --secondary-lightpeach-100: #fbe3d0;
+  --secondary-lightpeach-500: #f5c49a;
+  --secondary-lightpeach-700: #d89b6a;
 
-  --secondary-washigray-light: #f2f2f2;
-  --secondary-washigray-regular: #e0ded8;
-  --secondary-washigray-dark: #2c2c2c;
+  --secondary-washigray-100: #f2f2f7;
+  --secondary-washigray-500: #e0ded8;
+  --secondary-washigray-700: #2c2c2c;
 
+  /* * Accent Colors */
   /* 🟡 Accent Colors */
-  --accent-vividcoral-light: #ffb3a7;
-  --accent-vividcoral-regular: #ff6b6b;
-  --accent-vividcoral-dark: #d84343;
+  --accent-vividcoral-100: #f2a5a5;
+  --accent-vividcoral-500: #e26d6d;
+  --accent-vividcoral-700: #b94f4f;
 
-  --accent-goldenyellow-light: #ffeb99;
-  --accent-goldenyellow-regular: #ffc107;
-  --accent-goldenyellow-dark: #d69e00;
+  --accent-goldenyellow-100: #F2DEAA;
+  --accent-goldenyellow-500: #E8C76F;
+  --accent-goldenyellow-700: #C09B43;
 
-  --accent-softlavender-light: #e4d9ff;
-  --accent-softlavender-regular: #b39ddb;
-  --accent-softlavender-dark: #8064a2;
+  --accent-softlavender-100: #D8C2EE;
+  --accent-softlavender-500: #B690D7;
+  --accent-softlavender-700: #8C6AAD;
 
+  /* * Info Colors */
   /* 🟡 Info Colors */
-  --info-light: #f7f9fc;
-  --info-regular: #a3c7d6;
-  --info-dark: #4a4a4a;
+  --info-100: #f7f9fc;
+  --info-500: #a3c7d6;
+  --info-700: #4a4a4a;
 
+  /* * Grayscale Colors */
   /* Grayscale Colors */
   --grayscale-white: #ffffff;
   --grayscale-gray-100: #f2f2f2;
@@ -65,53 +74,50 @@
   --grayscale-gray-800: #4a4a4a;
   --grayscale-gray-900: #2c2c2c;
   --grayscale-black: #000000;
-}
 
-:root {
-  /* *Core */
-  --core-primary: var(--primary-sakura-regular);
-  --core-secondary: var(--primary-matcha-regular);
-  --core-accent: var(--accent-softlavender-regular);
-
+  /* * Text Colors */
   /* 🌐 Text Colors */
   --text-emphasis: var(--grayscale-gray-900);
   --text-primary: var(--grayscale-gray-800);
   --text-secondary: var(--grayscale-gray-700);
   --text-tertiary: var(--grayscale-gray-600);
-  --text-overline: var(--secondary-origami-dark);
-  --text-error: var(--accent-vividcoral-regular);
+  --text-overline: var(--secondary-origami-700);
+  --text-error: var(--accent-vividcoral-500);
   --text-placeholder: var(--grayscale-gray-500);
   --text-disabled: var(--grayscale-gray-400);
   --text-inverted: var(--grayscale-white); /* For dark backgrounds */
 
+  /* * Status Colors */
   /* ⚠️ Status Colors */
-  --status-error-bg: var(--accent-vividcoral-light);
-  --status-error: var(--accent-vividcoral-regular);
-  --status-error-emphasis: var(--accent-vividcoral-dark);
+  --status-error-bg: var(--accent-vividcoral-100);
+  --status-error: var(--accent-vividcoral-500);
+  --status-error-emphasis: var(--accent-vividcoral-700);
 
-  --status-success-bg: var(--primary-matcha-light);
-  --status-success: var(--primary-matcha-regular);
-  --status-success-emphasis: var(--primary-matcha-dark);
+  --status-success-bg: var(--primary-matcha-100);
+  --status-success: var(--primary-matcha-500);
+  --status-success-emphasis: var(--primary-matcha-700);
 
-  --status-warning-bg: var(--accent-goldenyellow-light);
-  --status-warning: var(--accent-goldenyellow-regular);
-  --status-warning-emphasis: var(--accent-goldenyellow-dark);
+  --status-warning-bg: var(--accent-goldenyellow-100);
+  --status-warning: var(--accent-goldenyellow-500);
+  --status-warning-emphasis: var(--accent-goldenyellow-700);
 
-  --status-info-bg: var(--info-light);
-  --status-info: var(--info-regular);
-  --status-info-emphasis: var(--info-dark);
+  --status-info-bg: var(--info-100);
+  --status-info: var(--info-500);
+  --status-info-emphasis: var(--info-700);
 
+  /* * Background Colors */
   /* 📌 Background Colors */
-  --background-primary: var(--primary-softwhite-light);
-  --background-secondary: var(--info-light);
-  --background-tertiary: var(--secondary-washigray-light);
+  --background-primary: var(--primary-softwhite-100);
+  --background-secondary: var(--info-100);
+  --background-tertiary: var(--secondary-washigray-100);
   --background-overlay: rgba(0, 0, 0, 0.5);
   --background-disabled: var(--grayscale-gray-400);
 
+  /* * Borders & Dividers */
   /* 🛑 Borders & Dividers */
-  --border-default: var(--secondary-origami-light);
-  --border-active: var(--accent-softlavender-regular);
-  --border-error: var(--accent-vividcoral-regular);
+  --border-default: var(--secondary-origami-100);
+  --border-active: var(--accent-softlavender-500);
+  --border-error: var(--accent-vividcoral-500);
   --border-focus: var(--core-primary);
 
   /* * Interaction */
@@ -128,6 +134,7 @@
   --button-fg-disabled: var(--grayscale-gray-600);
   --button-fg-destructive: var(--grayscale-white);
 
+  /* * Textfield */
   /* Textfield */
   --textfield-bg: var(--background-secondary);
   --textfield-fg: var(--text-primary);
@@ -173,86 +180,86 @@ body {
 @layer components {
   /* ✅ Headings */
   .text-h1 {
-    @apply font-quicksand font-bold text-text-emphasis text-fs-h1 leading-tight;
+    @apply font-quicksand font-bold text-text-emphasis text-5xl leading-tight;
   }
 
   .text-h2 {
-    @apply font-quicksand font-bold text-text-emphasis text-fs-h2 leading-snug;
+    @apply font-quicksand font-bold text-text-emphasis text-4xl leading-snug;
   }
 
   .text-h3 {
-    @apply font-quicksand font-bold text-text-emphasis text-fs-h3;
+    @apply font-quicksand font-bold text-text-emphasis text-3xl;
   }
 
   .text-h4 {
-    @apply font-quicksand font-bold text-text-emphasis text-fs-h4;
+    @apply font-quicksand font-bold text-text-emphasis text-2xl;
   }
 
   .text-h5 {
-    @apply font-quicksand font-semibold text-text-primary text-fs-h5;
+    @apply font-quicksand font-semibold text-text-primary text-xl;
   }
 
   .text-h6 {
-    @apply font-quicksand font-semibold text-text-primary text-fs-h6;
+    @apply font-quicksand font-semibold text-text-primary text-lg;
   }
 
   /* ✅ Body Text */
   .text-body1 {
-    @apply font-jakarta font-regular text-text-primary text-fs-body1 leading-relaxed;
+    @apply font-jakarta font-regular text-text-primary text-base leading-relaxed;
   }
 
   .text-body2 {
-    @apply font-jakarta font-regular text-text-secondary text-fs-body2 leading-normal;
+    @apply font-jakarta font-regular text-text-secondary text-sm leading-normal;
   }
 
   /* ✅ Caption, Overline, & Small Text */
   .text-caption {
-    @apply font-jakarta font-regular uppercase text-text-tertiary text-fs-caption tracking-wide;
+    @apply font-jakarta font-regular uppercase text-text-tertiary text-xs tracking-wide;
   }
 
   .text-overline {
-    @apply font-jakarta font-bold uppercase text-text-overline text-fs-overline tracking-widest;
+    @apply font-jakarta font-bold uppercase text-text-overline text-xs tracking-widest;
   }
 
   /* ✅ Buttons */
   .text-button {
-    @apply font-quicksand font-bold text-text-secondary text-fs-button;
+    @apply font-quicksand font-bold text-text-secondary text-base;
   }
 
   .text-button-small {
-    @apply font-quicksand font-bold text-text-secondary text-fs-button-small;
+    @apply font-quicksand font-bold text-text-secondary text-sm;
   }
 
   /* ✅ Input Label */
   .text-input-label {
-    @apply font-jakarta font-semibold text-text-primary text-fs-input-label;
+    @apply font-jakarta font-semibold text-text-primary text-sm;
   }
 
   /* ✅ Footer & Tooltip */
   .text-footer {
-    @apply font-jakarta font-regular text-text-tertiary text-fs-footer;
+    @apply font-jakarta font-regular text-text-tertiary text-xs;
   }
 
   .text-tooltip {
-    @apply font-jakarta font-regular text-text-tertiary text-fs-tooltip;
+    @apply font-jakarta font-regular text-text-tertiary text-xs;
   }
 
   /* ✅ Alerts & Notifications */
   .text-alert {
-    @apply font-quicksand font-bold text-text-primary text-fs-alert;
+    @apply font-quicksand font-bold text-text-primary text-base;
   }
 
   .text-navigation-item {
-    @apply font-quicksand font-semibold text-text-primary text-fs-navigation-item;
+    @apply font-quicksand font-semibold text-text-primary text-base;
   }
 
   /* ✅ Badges & Links */
   .text-badge {
-    @apply font-jakarta font-medium uppercase text-text-tertiary text-fs-badge;
+    @apply font-jakarta font-medium uppercase text-text-tertiary text-2xs;
   }
 
   .text-link {
-    @apply font-jakarta font-regular underline text-blue-500 hover:text-blue-700 transition text-fs-link;
+    @apply font-jakarta font-regular underline text-blue-500 hover:text-blue-700 transition text-sm;
   }
 }
 
