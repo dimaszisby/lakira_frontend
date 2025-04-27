@@ -1,15 +1,18 @@
 // components/layout/Layout.tsx
 
-import Header from "./Header";
+"use client";
+
+import Sidebar from "./Sidebar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      <main className="flex-1 container mx-auto p-4">{children}</main>
-      <footer className="bg-gray-50 text-gray-800 text-center p-4">
-        © {new Date().getFullYear()} Lakira
-      </footer>
+    <div className="min-h-screen flex bg-gray-50">
+      <Sidebar/>
+
+      {/* ✅ Adjust main content layout to prevent overflow issues */}
+      <main className="flex-1 min-h-screen lg:ml-64 p-6 overflow-x-hidden">
+        {children}
+      </main>
     </div>
   );
 };

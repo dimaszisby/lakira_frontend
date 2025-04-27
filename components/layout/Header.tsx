@@ -1,5 +1,7 @@
 // components/layout/Header.tsx
 
+"use client";
+
 import Link from "next/link";
 import { useAtom } from "jotai";
 import { userAtom } from "../../state/atoms";

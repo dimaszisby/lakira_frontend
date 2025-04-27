@@ -12,20 +12,28 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { List, X, SignOut } from "phosphor-react";
-import Modal from "@/components/ui/ModalProps"; // ✅ Ensure correct import (folder renamed to "components")
-import { useMutation } from "@tanstack/react-query";
+import { List, X } from "phosphor-react";
+import Modal from "@/components/ui/Modal"; // ✅ Ensure correct import (folder renamed to "components")
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logoutUser } from "@/utils/auth";
 import { useAtom } from "jotai";
 import { userAtom } from "@/state/atoms";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 
+import {
+  SquaresFour,
+  ChartBar,
+  Folder,
+  UserCircle,
+  SignOut,
+} from "phosphor-react";
+
 const navItems = [
-  { name: "Dashboard", href: "/dashboard" },
-  { name: "Metrics", href: "/metrics" },
-  { name: "Reports", href: "/reports" },
-  { name: "Settings", href: "/settings" },
+  { name: "Dashboard", href: "/dashboard", icon: SquaresFour },
+  { name: "Metrics", href: "/metrics", icon: ChartBar },
+  { name: "Category", href: "/category", icon: Folder },
+  { name: "Account", href: "/account", icon: UserCircle },
 ];
 
 export default function Sidebar() {
@@ -35,6 +43,10 @@ export default function Sidebar() {
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [, setUser] = useAtom(userAtom);
 
+  // queryClient to update cache
+  const queryClient = useQueryClient();
+
+  // Mobile state handlers
   const toggleMobileMenu = () => setMobileOpen((prev) => !prev);
   const closeMobileMenu = () => setMobileOpen(false);
 
@@ -44,6 +56,7 @@ export default function Sidebar() {
     onSuccess: () => {
       localStorage.removeItem("token");
       setUser(null);
+      queryClient.setQueryData(["userProfile"], null); // ✅ Reset cache
       toast.success("Logged out successfully");
       router.push("/auth/login");
     },
@@ -64,7 +77,7 @@ export default function Sidebar() {
       </div>
 
       {/* ✅ Desktop Sidebar */}
-      <div className="p-6 fixed inset-y-0 left-0 w-64 bg-white shadow-lg h-screen z-50 lg:flex flex-col hidden">
+      <div className="fixed top-4 left-4 bottom-4 w-64 p-6 bg-white shadow-lg z-50 lg:flex flex-col hidden rounded-2xl">
         <h2 className="text-2xl font-bold mb-6">📊 Lakira</h2>
 
         {/* Debugging Line */}
@@ -78,12 +91,13 @@ export default function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`block px-4 py-2 rounded-md transition ${
+                  className={`flex items-center px-4 py-2 rounded-md transition ${
                     pathname === item.href
-                      ? "bg-blue-600 text-white"
+                      ? "bg-pink-200 text-gray-700"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
+                  <item.icon size={20} className="mr-2" />
                   {item.name}
                 </Link>
               </li>
@@ -95,10 +109,10 @@ export default function Sidebar() {
         <div className="mt-auto">
           <button
             onClick={() => setLogoutModalOpen(true)}
-            className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition"
+            className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition"
           >
             <SignOut size={20} className="mr-2" />
-            Log Out
+            Sign Out
           </button>
         </div>
       </div>
@@ -137,12 +151,13 @@ export default function Sidebar() {
                     <Link
                       href={item.href}
                       onClick={closeMobileMenu}
-                      className={`block px-4 py-2 rounded-md transition ${
+                      className={`flex items-center block px-4 py-2 rounded-md transition ${
                         pathname === item.href
-                          ? "bg-blue-600 text-white"
+                          ? "bg-pink-200 text-gray-700"
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                     >
+                      <item.icon size={20} className="mr-2" />
                       {item.name}
                     </Link>
                   </li>
@@ -153,10 +168,10 @@ export default function Sidebar() {
             <div className="mt-6">
               <button
                 onClick={() => setLogoutModalOpen(true)}
-                className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition"
+                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition"
               >
                 <SignOut size={20} className="mr-2" />
-                Log Out
+                Sign Out
               </button>
             </div>
           </motion.div>
