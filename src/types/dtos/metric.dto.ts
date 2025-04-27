@@ -133,6 +133,24 @@ export interface MetricPreviewResponseDTO {
   readonly name: string;
 
   /**
+   * @property {string} defaultUnit - The default unit of measurement for this metric (e.g., 'kg', 'steps', 'ml').
+   * @readonly
+   */
+  readonly defaultUnit: string;
+
+  /**
+   * @property {string | null} description - An optional description providing more details about the metric.
+   * @readonly
+   */
+  readonly description: string | null;
+
+  /**
+   * @property {isPublic} - Flag indicating if this metric definition can be publicly discovered or used as a template.
+   * @readonly
+   */
+  readonly isPublic: boolean;
+
+  /**
    * @property {MetricPreviewCategoryDTO} [category] - Optional summarized information about the metric's category.
    * @readonly
    */
@@ -143,13 +161,23 @@ export interface MetricPreviewResponseDTO {
    * @readonly
    */
   readonly goalType?: string;
+
+  /**
+   * @property {number} logCount - The number of logs associated with the metric.
+   * @readonly
+   * @example 10
+   */
+  readonly logCount: number;
 }
 
+// TODO: Update on the backend from = to { metrics: MetricPreviewResponseDTO[]}
 /**
  * @typedef MetricListResponseDTO
  * @description Represents a list (array) of MetricPreviewResponseDTO objects, typically returned in API responses for lists of metrics.
  */
-export type MetricListResponseDTO = MetricPreviewResponseDTO[];
+export interface MetricListResponseDTO {
+  metrics: MetricPreviewResponseDTO[];
+}
 
 /**
  * @interface UserMetricDetailResponseDTO
