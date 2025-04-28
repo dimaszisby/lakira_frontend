@@ -54,7 +54,6 @@ export default function Sidebar() {
   const { mutate: handleLogout, status } = useMutation({
     mutationFn: logoutUser,
     onSuccess: () => {
-      localStorage.removeItem("token");
       setUser(null);
       queryClient.setQueryData(["userProfile"], null); // ✅ Reset cache
       toast.success("Logged out successfully");
@@ -79,31 +78,8 @@ export default function Sidebar() {
       {/* ✅ Desktop Sidebar */}
       <div className="fixed top-4 left-4 bottom-4 w-64 p-6 bg-white shadow-lg z-50 lg:flex flex-col hidden rounded-2xl">
         <h2 className="text-2xl font-bold mb-6">📊 Lakira</h2>
+        <NavigationItems pathname={pathname || ""} />
 
-        {/* Debugging Line */}
-        <label className="text-red-500 text-lg font-bold mb-6">
-          This is desktop Sidebar
-        </label>
-
-        <nav>
-          <ul className="space-y-3">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center px-4 py-2 rounded-md transition ${
-                    pathname === item.href
-                      ? "bg-pink-200 text-gray-700"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon size={20} className="mr-2" />
-                  {item.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
 
         {/* ✅ Logout Button */}
         <div className="mt-auto">
@@ -119,16 +95,12 @@ export default function Sidebar() {
 
       {/* ✅ Mobile Sidebar Drawer */}
       {mobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
-          onClick={closeMobileMenu}
-        >
+        <Modal isOpen={mobileOpen} onClose={closeMobileMenu}>
           <motion.div
             initial={{ x: -300 }}
             animate={{ x: 0 }}
             transition={{ type: "spring", stiffness: 100 }}
             className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg p-6 z-50"
-            onClick={(e) => e.stopPropagation()}
           >
             <button
               className="absolute top-4 right-4"
@@ -144,26 +116,7 @@ export default function Sidebar() {
               This is Mobile
             </label>
 
-            <nav>
-              <ul className="space-y-3">
-                {navItems.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      onClick={closeMobileMenu}
-                      className={`flex items-center block px-4 py-2 rounded-md transition ${
-                        pathname === item.href
-                          ? "bg-pink-200 text-gray-700"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      <item.icon size={20} className="mr-2" />
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <NavigationItems pathname={pathname || ""} onClick={closeMobileMenu} />
 
             <div className="mt-6">
               <button
@@ -175,7 +128,7 @@ export default function Sidebar() {
               </button>
             </div>
           </motion.div>
-        </div>
+        </Modal>
       )}
 
       {/* ✅ Logout Confirmation Modal */}
@@ -206,3 +159,34 @@ export default function Sidebar() {
     </>
   );
 }
+
+const NavigationItems = ({
+  pathname,
+  onClick,
+}: {
+  pathname: string;
+  onClick?: () => void;
+}) => {
+  return (
+    <nav>
+      <ul className="space-y-3">
+        {navItems.map((item) => (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              onClick={onClick}
+              className={`flex items-center px-4 py-2 rounded-md transition ${
+                pathname === item.href
+                  ? "bg-pink-200 text-gray-700"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <item.icon size={20} className="mr-2" />
+              {item.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
