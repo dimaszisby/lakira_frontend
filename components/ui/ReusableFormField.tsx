@@ -1,3 +1,5 @@
+// components/ui/ReusableFormField.tsx
+
 import React from "react";
 import { UseFormRegisterReturn } from "react-hook-form";
 
@@ -28,6 +30,10 @@ interface ReusableFormFieldProps {
    * The placeholder text for the input field (optional).
    */
   placeholder?: string;
+  /**
+   * Whether the form is submitting.
+   */
+  isSubmitting?: boolean;
 }
 
 const ReusableFormField: React.FC<ReusableFormFieldProps> = ({
@@ -36,17 +42,23 @@ const ReusableFormField: React.FC<ReusableFormFieldProps> = ({
   register,
   error,
   placeholder,
+  isSubmitting,
 }) => {
   return (
     <div>
-      <label className="block text-gray-700 mb-1">{label}</label>
+      <label className="block text-input-label text-gray-700 mb-1">{label}</label>
       <input
         type={type}
         className="input-textfield"
         placeholder={placeholder}
         {...register}
+        onChange={(e) => {
+          console.log(`Input ${label} changed:`, e.target.value);
+          register.onChange(e); // Trigger react-hook-form's onChange
+        }}
+        disabled={isSubmitting}
       />
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };
