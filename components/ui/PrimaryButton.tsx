@@ -18,7 +18,7 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-xl font-semibold transition ${
+      className={`bg-[#A8C28B] hover:bg-[#7C9B63] text-white px-6 py-2 rounded-xl font-semibold transition ${
         disabled
           ? "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400"
           : "hover:bg-blue-700"
