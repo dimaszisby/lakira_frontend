@@ -1,12 +1,10 @@
-// pages/_app.tsx
+"use client";
 
-import "@/styles/globals.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { useState } from "react";
 import { Provider as JotaiProvider } from "jotai";
 import { Quicksand, Plus_Jakarta_Sans } from "next/font/google";
-import type { AppProps } from "next/app";
 
 // Font Optimization
 const quicksand = Quicksand({
@@ -23,7 +21,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -31,8 +29,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <JotaiProvider>
         <QueryClientProvider client={queryClient}>
           {/* Ensures hydration for server-side data fetching */}
-          <HydrationBoundary state={pageProps.dehydratedState}>
-            <Component {...pageProps} />
+          <HydrationBoundary>
+            {children}
           </HydrationBoundary>
         </QueryClientProvider>
       </JotaiProvider>
