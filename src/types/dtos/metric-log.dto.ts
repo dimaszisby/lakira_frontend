@@ -1,9 +1,13 @@
+// src/types/dtos/metric-log.dto.ts
+
+
 import { z } from "zod";
 
 // Internal validation schemas
 import {
   createMetricLogSchema,
   updateMetricLogSchema,
+  generateDummyMetricLogsSchema,
 } from "@/types/api/zod-metric-log.schema";
 
 /**
@@ -13,8 +17,6 @@ import {
  * defining the structure of data exchanged between the client and server.
  * DTOs are often immutable.
  */
-
-// * Response DTOs
 
 /**
  * @interface MetricLogResponseDTO
@@ -70,8 +72,6 @@ export interface MetricLogResponseDTO {
  */
 export type MetricLogListResponseDTO = MetricLogResponseDTO[];
 
-// * Request DTOs
-
 /**
  * @typedef CreateMetricLogRequestDTO
  * @description Represents the expected structure of the request body when creating a new metric log entry.
@@ -87,4 +87,17 @@ export type CreateMetricLogRequestDTO = z.infer<
  */
 export type UpdateMetricLogRequestDTO = z.infer<
   typeof updateMetricLogSchema.shape.body
+>;
+
+/**
+ * * ===== DTOs for Testing Purposes =====
+ */
+
+/**
+ * @typedef GenerateDummyMetricLogsRequestDTO
+ * @description Represents the expected structure of the request body when generating dummy metric log entries.
+ * Inferred from the Zod schema for validation.
+ */
+export type GenerateDummyMetricLogsRequestDTO = z.infer<
+  typeof generateDummyMetricLogsSchema.shape.body
 >;

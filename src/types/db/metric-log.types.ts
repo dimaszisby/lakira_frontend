@@ -1,3 +1,5 @@
+// src/types/db/metric-log.types.ts
+
 /**
  * @interface MetricLogAttributesBase
  * @description Defines the core, non-database-specific attributes for a Metric Log entity.

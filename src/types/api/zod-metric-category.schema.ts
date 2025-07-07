@@ -1,3 +1,5 @@
+// src/types/api/zod-metric-category.schema.ts
+
 import { z } from "zod";
 import { ZodMessages } from "@/constants/zod-messages";
 import {
@@ -43,5 +45,15 @@ export const getMetricCategorySchema = z.object({
 export const deleteMetricCategorySchema = z.object({
   params: z.object({
     id: z.string().uuid({ message: ZodMessages.metricCategory.invalidId }),
+  }),
+});
+
+/**
+ * * ===== Schemas for Testing Purposes =====
+ */
+
+export const generateDummyMetricCategoriesSchema = z.object({
+  body: z.object({
+    count: z.number().int().min(1).max(1000).default(50), // Default to 50, max 1000
   }),
 });

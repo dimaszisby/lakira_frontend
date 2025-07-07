@@ -1,3 +1,5 @@
+// src/types/dtos/user.dto.ts
+
 /**
  * @file src/types/dtos/user.dto.ts
  * @description Defines the Data Transfer Objects (DTOs) for User-related API contracts.
@@ -11,7 +13,7 @@ import {
   createUserSchema,
   loginUserSchema,
   updateUserSchema,
-} from "../api/zod-user.schema";
+} from "@/types/api/zod-user.schema";
 import { z } from "zod";
 
 // * Response DTOs

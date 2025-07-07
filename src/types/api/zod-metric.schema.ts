@@ -1,3 +1,5 @@
+// ✅ src/types/api/zod-metric.schema.ts
+
 import { z } from "zod";
 import {
   zUUID,
@@ -47,25 +49,18 @@ export const getMetricSchema = z.object({
 
 export const deleteMetricSchema = getMetricSchema;
 
-// TODO: Uncomment and implement these schemas as needed (Need to update backend API)
-// export const getAllMetricsSchema = z.object({
-//   query: z.object({
-//     categoryId: z.string().optional(),
-//     isPublic: z.boolean().optional(),
-//     search: z.string().optional(),
-//   }),
-// });
-// export const getMetricByOriginalIdSchema = z.object({
-//   params: z.object({
-//     originalId: z.string(),
-//   }),
-// });
-// export const getMetricsByCategoryIdSchema = z.object({
-//   params: z.object({
-//     categoryId: z.string(),
-//   }),
-//   query: z.object({
-//     isPublic: z.boolean().optional(),
-//     search: z.string().optional(),
-//   }),
-// });
+// Infer TypeScript types from schemas
+export type CreateMetricInput = z.infer<typeof createMetricSchema>["body"];
+export type UpdateMetricInput = z.infer<typeof updateMetricSchema>; // Includes params and body
+export type GetMetricInput = z.infer<typeof getMetricSchema>["params"];
+export type DeleteMetricInput = z.infer<typeof deleteMetricSchema>["params"];
+
+/**
+ * * ===== Schemas for Testing Purposes =====
+ */
+
+export const generateDummyMetricsSchema = z.object({
+  body: z.object({
+    count: z.number().int().min(1).max(1000).default(50), // Default to 50, max 1000
+  }),
+});

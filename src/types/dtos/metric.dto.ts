@@ -6,6 +6,7 @@ import {
   deleteMetricSchema,
   getMetricSchema,
   updateMetricSchema,
+  generateDummyMetricsSchema, // Import the new schema
 } from "@/types/api/zod-metric.schema";
 
 // Internal DTOs for associations
@@ -154,13 +155,13 @@ export interface MetricPreviewResponseDTO {
    * @property {MetricPreviewCategoryDTO} [category] - Optional summarized information about the metric's category.
    * @readonly
    */
-  readonly category?: MetricPreviewCategoryDTO;
+  readonly category: MetricPreviewCategoryDTO | null;
 
   /**
    * @property {string} [goalType] - Optional goal type associated with the metric's settings (e.g., 'cumulative', 'incremental').
    * @readonly
    */
-  readonly goalType?: string;
+  readonly goalType: string | null;
 
   /**
    * @property {number} logCount - The number of logs associated with the metric.
@@ -170,13 +171,106 @@ export interface MetricPreviewResponseDTO {
   readonly logCount: number;
 }
 
-// TODO: Update on the backend from = to { metrics: MetricPreviewResponseDTO[]}
 /**
  * @typedef MetricListResponseDTO
  * @description Represents a list (array) of MetricPreviewResponseDTO objects, typically returned in API responses for lists of metrics.
  */
-export interface MetricListResponseDTO {
+export type MetricListResponseDTO = MetricPreviewResponseDTO[];
+
+// types/dtos/metric-list-paginated.dto.ts
+export interface PaginatedMetricListResponseDTO {
   metrics: MetricPreviewResponseDTO[];
+  total: number;
+}
+
+/**
+ * @interface UserMetricDetailResponseDTO
+ * @description Represents a detailed view of a metric, including associated category, settings, and logs.
+ */
+export interface UserMetricDetailResponseDTO {
+  /**
+   * @property {string} id - The unique identifier for the metric (typically a UUID).
+   * @readonly
+   */
+  readonly id: string;
+
+  /**
+   * @property {string} userId - The identifier of the user who owns this metric instance.
+   * @readonly
+   */
+  readonly userId: string;
+
+  /**
+   * @property {string | null} [categoryId] - The identifier of the category this metric belongs to, if any. Null if uncategorized.
+   * @readonly
+   */
+  readonly categoryId: string | null;
+
+  /**
+   * @property {string | null} [originalMetricId] - If this metric was created from a public template, this is the ID of the original template metric. Null otherwise.
+   * @readonly
+   */
+  readonly originalMetricId: string | null;
+
+  /**
+   * @property {string} name - The user-defined name for the metric.
+   * @readonly
+   */
+  readonly name: string;
+
+  /**
+   * @property {string | null} description - An optional description providing more details about the metric.
+   * @readonly
+   */
+  readonly description: string | null;
+
+  /**
+   * @property {string} defaultUnit - The default unit of measurement for this metric (e.g., 'kg', 'steps', 'ml').
+   * @readonly
+   */
+  readonly defaultUnit: string;
+
+  /**
+   * @property {boolean} isPublic - Flag indicating if this metric definition can be publicly discovered or used as a template.
+   * @readonly
+   */
+  readonly isPublic: boolean;
+
+  /**
+   * @property {string} createdAt - The timestamp when the metric was created, formatted as an ISO string.
+   * @readonly
+   */
+  readonly createdAt: string; // ISO Date string
+
+  /**
+   * @property {string} updatedAt - The timestamp when the metric was last updated, formatted as an ISO string.
+   * @readonly
+   */
+  readonly updatedAt: string; // ISO Date string
+
+  /**
+   * @property {MetricCategoryResponseDTO | null} [category] - The associated metric category DTO, if loaded. Null if uncategorized.
+   * @readonly
+   */
+  readonly category?: MetricCategoryResponseDTO | null;
+
+  /**
+   * @property {MetricSettingsResponseDTO | null} [settings] - The associated metric settings DTO, if loaded.
+   * @readonly
+   */
+  readonly settings?: MetricSettingsResponseDTO | null;
+
+  /**
+   * @property {MetricLogResponseDTO[] | null} [logs] - An array of associated metric log DTOs, if loaded.
+   * @readonly
+   */
+  readonly logs?: MetricLogResponseDTO[] | null;
+}
+
+// types/dtos/metric-list-paginated.dto.ts
+export interface PaginatedMetricListResponseDTO {
+  metrics: MetricPreviewResponseDTO[];
+  total: number;
 }
 
 /**
@@ -296,3 +390,16 @@ export type GetMetricInput = z.infer<typeof getMetricSchema>["params"];
  * Inferred from the Zod schema for validation.
  */
 export type DeleteMetricInput = z.infer<typeof deleteMetricSchema>["params"];
+
+/**
+ * * ===== DTOs for Testing Purposes =====
+ */
+
+/**
+ * @typedef GenerateDummyMetricsRequestDTO
+ * @description Represents the expected structure of the request body when generating dummy metric entries.
+ * Inferred from the Zod schema for validation.
+ */
+export type GenerateDummyMetricsRequestDTO = z.infer<
+  typeof generateDummyMetricsSchema.shape.body
+>;

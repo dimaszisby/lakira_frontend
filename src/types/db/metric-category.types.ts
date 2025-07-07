@@ -1,3 +1,5 @@
+// src/types/db/metric-category.types.ts
+
 /**
  * @interface MetricCategoryAttributesBase
  * @description Defines the core, non-database-specific attributes for a Metric Category entity.
