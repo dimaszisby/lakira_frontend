@@ -1,11 +1,13 @@
+"use client";
+
 import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtom } from "jotai";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { userAtom } from "@/state/atoms";
 import { handleApiError } from "@/utils/handleApiError";
-import { registerUser } from "@/utils/auth";
+import { registerUser } from "@/utils/interactors/auth.api";
 import { createUserSchema } from "@/types/api/zod-user.schema";
 import { CreateUserRequestDTO } from "@/src/types/dtos/user.dto";
 
@@ -46,7 +48,7 @@ const RegisterForm = () => {
       };
 
       try {
-        const response = await registerUser(finalData);
+        const response = await registerUser(finalData); // Calls registerUser on metric API
         console.log("Register API Response:", response);
 
         if (response.token) {

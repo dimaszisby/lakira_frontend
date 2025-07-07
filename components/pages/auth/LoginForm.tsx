@@ -1,11 +1,13 @@
+"use client";
+
 // components/Auth/LoginForm.tsx
 
 import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useAtom } from "jotai";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { userAtom } from "@/state/atoms";
-import { loginUser } from "@/utils/auth";
+import { loginUser } from "@/utils/interactors/auth.api";
 import { handleApiError } from "@/utils/handleApiError";
 import { LoginRequestDTO } from "@/src/types/dtos/user.dto";
 import { loginUserSchema } from "@/types/api/zod-user.schema";

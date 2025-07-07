@@ -1,5 +1,6 @@
 import React from "react";
 import PrimaryButton from "@/components/ui/PrimaryButton"; // Import the PrimaryButton component
+import EmptyStateCard from "@/components/ui/EmptyStateCard";
 
 /**
  * Props for the MetricEmptyState component.
@@ -17,10 +18,11 @@ interface MetricEmptyStateProps {
 const MetricEmptyState: React.FC<MetricEmptyStateProps> = ({ onOpenModal }) => {
   return (
     <div className="text-center text-gray-600 mt-8">
-      <p className="text-xl font-medium">You have no metrics yet.</p>
-      <p className="text-sm text-gray-500 mt-2">
-        Start tracking your progress by adding a new metric.
-      </p>
+      <EmptyStateCard
+        titleText="No Metrics Found"
+        descriptionText="You haven't created any metrics yet."
+      />
+
       <PrimaryButton
         onClick={onOpenModal}
         ariaLabel="Create Your First Metric"

@@ -14,7 +14,7 @@ const Breadcrumbs: React.FC<{
   >
     <ol className="flex items-center text-sm font-medium text-gray-500 space-x-2">
       <li>
-        <Link href="/metric" className="hover:underline">
+        <Link href="/metrics" className="hover:underline">
           Metric Library
         </Link>
         <span className="mx-2">/</span>

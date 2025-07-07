@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useAtom } from "jotai";
 import { userAtom } from "../../state/atoms";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [user, setUser] = useAtom(userAtom);

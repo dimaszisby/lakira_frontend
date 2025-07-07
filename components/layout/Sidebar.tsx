@@ -4,7 +4,7 @@
  * Sidebar component for the application layout.
  * - with mobile drawer and logout confirmation modal.
  *
- * TODO: Refactor the sidebar component to make it slimmer
+ * TODO: Refactor the sidebar component according to the newest UI changes.
  */
 
 "use client";
@@ -15,7 +15,7 @@ import { useState } from "react";
 import { List, X } from "phosphor-react";
 import Modal from "@/components/ui/Modal"; // ✅ Ensure correct import (folder renamed to "components")
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { logoutUser } from "@/utils/auth";
+import { logoutUser } from "@/utils/interactors/auth.api";
 import { useAtom } from "jotai";
 import { userAtom } from "@/state/atoms";
 import { motion } from "framer-motion";
@@ -80,7 +80,6 @@ export default function Sidebar() {
         <h2 className="text-2xl font-bold mb-6">📊 Lakira</h2>
         <NavigationItems pathname={pathname || ""} />
 
-
         {/* ✅ Logout Button */}
         <div className="mt-auto">
           <button
@@ -116,7 +115,10 @@ export default function Sidebar() {
               This is Mobile
             </label>
 
-            <NavigationItems pathname={pathname || ""} onClick={closeMobileMenu} />
+            <NavigationItems
+              pathname={pathname || ""}
+              onClick={closeMobileMenu}
+            />
 
             <div className="mt-6">
               <button
@@ -160,6 +162,7 @@ export default function Sidebar() {
   );
 }
 
+// Subcomponent for Navigation Items
 const NavigationItems = ({
   pathname,
   onClick,
@@ -175,9 +178,9 @@ const NavigationItems = ({
             <Link
               href={item.href}
               onClick={onClick}
-              className={`flex items-center px-4 py-2 rounded-md transition ${
+              className={`flex items-center px-4 py-2 rounded-lg transition font-semibold ${
                 pathname === item.href
-                  ? "bg-pink-200 text-gray-700"
+                  ? "bg-pink-500 text-white"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >

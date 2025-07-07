@@ -1,21 +1,17 @@
 import { DataLabel } from "@/components/ui/DataLabel";
 import SectionCard from "@/components/ui/SectionCard";
 import SubsectionCard from "@/components/ui/SubsectionCard";
-import { MetricSettingsResponseDTO } from "@/src/types/dtos/metric-settings.dto";
-import { UserMetricDetailResponseDTO } from "@/src/types/dtos/metric.dto";
 import { PencilSimple } from "phosphor-react";
 import { safeLabel } from "@/utils/helpers/labelHelper";
 import { formatDate } from "@/utils/helpers/dateHelper"; // Ensure this utility exists for date formatting
+import { UserMetricDetailResponseDTO } from "@/src/types/dtos/metric.dto";
 
 /**
  * Settings panel for a metric, showing goal, alert, and display options.
  */
 const MetricSettingsSection: React.FC<{
-  metric: UserMetricDetailResponseDTO;
-}> = ({ metric }) => {
-  const settings: MetricSettingsResponseDTO | null | undefined =
-    metric.settings;
-
+  settings: UserMetricDetailResponseDTO["settings"] | null;
+}> = ({ settings }) => {
   return (
     <SectionCard
       title="Metric Settings"

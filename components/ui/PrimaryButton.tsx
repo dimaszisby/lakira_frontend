@@ -3,6 +3,7 @@ import React from "react";
 interface PrimaryButtonProps {
   onClick?: () => void;
   children: React.ReactNode;
+  type?: "submit" | "reset" | "button" | undefined;
   ariaLabel?: string;
   className?: string;
   disabled?: boolean;
@@ -11,6 +12,7 @@ interface PrimaryButtonProps {
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   onClick,
   children,
+  type,
   ariaLabel,
   className,
   disabled,
@@ -23,6 +25,7 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
           ? "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400"
           : "hover:bg-blue-700"
       } ${className}`}
+      type={type}
       aria-label={ariaLabel}
       role="button"
       disabled={disabled}

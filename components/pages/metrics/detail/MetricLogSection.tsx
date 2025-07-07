@@ -1,91 +1,146 @@
+// components/pages/metrics/detail/MetricLogSection.tsx
+
+"use client";
+
+import { useState } from "react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+
+// components
 import EmptyStateCard from "@/components/ui/EmptyStateCard";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SectionCard from "@/components/ui/SectionCard";
-import { MetricLogResponseDTO } from "@/src/types/dtos/metric-log.dto";
+import SkeletonLoader from "@/components/ui/SekeletonLoader";
+import { Pagination } from "@/components/ui/Pagination";
+import { LogTable } from "../../logs/LogTable";
+
+// utils
+import { handleApiError } from "@/utils/handleApiError";
 import { formatDate } from "@/utils/helpers/dateHelper";
-import classNames from "classnames";
+import { createMetricLogDummy } from "@/utils/interactors/metric-log.api";
+import useMetricLogs from "@/hooks/useMetricLogs";
+
+const PAGE_SIZE = 20;
 
 /**
  * Logs section with search and pagination (dummy).
  */
-const MetricLogsSection: React.FC<{ logs: MetricLogResponseDTO[] }> = ({
-  logs,
-}) => (
-  <SectionCard>
-    <div className="flex bg-items-center justify-between mb-4">
-      <h2 className="text-xl font-bold">Logs</h2>
-      {/* ...search and add log button code unchanged... */}
-      <PrimaryButton>Add Logs</PrimaryButton>
-    </div>
-    {logs.length === 0 ? (
-      <div className="bg-status-info-bg p-8 rounded-lg">
-        <EmptyStateCard
-          titleText="List Empty"
-          descriptionText="You don’t have any item added to the library"
-          tooltipText="You can add Logs by clicking ''+ Add Log'' button"
-        />
-      </div>
-    ) : (
-      <>
-        <table className="min-w-full">
-          <thead>
-            <tr className="text-xs uppercase text-gray-500">
-              <th className="text-left px-4 py-2 font-semibold">Log Date</th>
-              <th className="text-left px-4 py-2 font-semibold">Type</th>
-              <th className="text-right px-4 py-2 font-semibold">Value</th>
-              <th className="px-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Log Row */}
-            {logs.map((log) => (
-              <tr
-                key={log.id}
-                className="border-b border-gray-100 hover:bg-gray-50 transition"
-              >
-                <td className="px-4 py-2 text-sm flex items-center">
-                  <span className="text-yellow-400 mr-2">⚡</span>
-                  {formatDate(log.loggedAt, true)}
-                </td>
-                <td className="px-4 py-2 text-sm capitalize">{log.type}</td>
-                <td className="px-4 py-2 text-right text-base font-semibold text-red-500">
-                  {log.logValue}
-                </td>
-                <td className="px-2 text-right">
-                  {/* Placeholder for log actions (edit/delete) */}
-                  <button
-                    className="p-1 text-gray-400 hover:text-gray-600 rounded"
-                    aria-label="Log Actions"
-                  >
-                    ⋯
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {/* Pagination Placeholder (unchanged) */}
-        <div className="flex justify-center mt-4">
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5, "...", 10].map((num, i) => (
-              <button
-                key={i}
-                className={classNames(
-                  "px-3 py-1 rounded-lg text-sm",
-                  num === 1
-                    ? "bg-purple-200 text-purple-800 font-bold"
-                    : "hover:bg-gray-200 text-gray-700"
-                )}
-                disabled={num === "..."}
-              >
-                {num}
-              </button>
-            ))}
-          </div>
+interface MetricLogSectionProps {
+  metricId: string;
+  onAddLog: () => void;
+}
+
+const MetricLogsSection: React.FC<MetricLogSectionProps> = ({
+  metricId,
+  onAddLog,
+}) => {
+  const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+
+  // Use the new useMetricLogs with pagination
+  const { logs, isLoading, isError, total } = useMetricLogs(
+    metricId,
+    page,
+    PAGE_SIZE
+  );
+
+  // Calculate total pages
+  const totalPages = total ? Math.ceil(total / PAGE_SIZE) : 1;
+
+  /**
+   * * Dummy Metrics
+   * UseMutation for API request for Creating Dummy Metrics
+   */
+  const { mutateAsync, error: mutationError } = useMutation({
+    mutationFn: (data: { count: number; metricId: string }) =>
+      createMetricLogDummy(data),
+    /**
+     * onSuccess callback for the useMutation hook.
+     * Invalidates the 'metrics' query and closes the modal.
+     */
+    onSuccess: () => {
+      console.log("Mutation succeeded");
+      queryClient.invalidateQueries({ queryKey: ["metriclogs"] });
+      queryClient.invalidateQueries({ queryKey: ["metricDetail"] });
+    },
+    /**
+     * onError callback for the useMutation hook.
+     * Logs the error and sets isSubmitting to false.
+     * @param {unknown} error - The error object.
+     */
+    onError: (error: unknown) => {
+      const errorMessages = handleApiError(error as Error);
+      console.error("Mutation error:", errorMessages);
+    },
+  });
+
+  /**
+   * * Dummy Metrics
+   * Form Submit Handler for generating dummy metrics.
+   */
+  const onDummyDataSubmit = async () => {
+    try {
+      console.log("Submitting request for metric dummy with count 50");
+      await mutateAsync({ count: 50, metricId: metricId }); // Hardcoded count for now
+      console.log("mutateAsync completed successfully");
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
+  };
+
+  if (isLoading) {
+    <div>Loading Logs</div>;
+  }
+  if (isError) {
+    <div> Error Loading Logs</div>;
+  }
+
+  return (
+    <SectionCard
+      title="Logs"
+      className="mb-8"
+      headerComponent={
+        <div className="flex bg-items-center justify-between space-x-4 mb-4">
+          <PrimaryButton
+            onClick={onDummyDataSubmit}
+            ariaLabel="Generate Logs"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Generate Metric
+          </PrimaryButton>
+
+          <PrimaryButton onClick={onAddLog}>Add Logs</PrimaryButton>
         </div>
+      }
+    >
+      <>
+        {/* Pagination Placeholder (unchanged) */}
+        {isLoading ? (
+          <SkeletonLoader count={10} className="h-10" />
+        ) : logs.length === 0 ? (
+          <EmptyStateCard
+            titleText="Your log is Empty"
+            descriptionText="Your log is Empty"
+          />
+        ) : (
+          <>
+            <LogTable logs={logs || []} />
+
+            {/**Pagination Segment */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8">
+                <Pagination
+                  page={page}
+                  total={total}
+                  pageSize={PAGE_SIZE}
+                  onChange={setPage}
+                />
+              </div>
+            )}
+          </>
+        )}
       </>
-    )}
-  </SectionCard>
-);
+    </SectionCard>
+  );
+};
 
 export default MetricLogsSection;
