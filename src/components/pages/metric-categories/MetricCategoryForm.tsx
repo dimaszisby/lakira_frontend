@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ReusableFormField from "@/components/ui/ReusableFormField";
+import ReusableFormField from "@/src/components/ui/ReusableFormField";
 
 // types
 import { CreateMetricCategoryRequestDTO } from "@/src/types/dtos/metric-category.dto";

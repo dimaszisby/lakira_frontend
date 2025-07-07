@@ -1,6 +1,6 @@
 import React from "react";
-import PrimaryButton from "@/components/ui/PrimaryButton"; // Import the PrimaryButton component
-import EmptyStateCard from "@/components/ui/EmptyStateCard";
+import PrimaryButton from "@/src/components/ui/PrimaryButton"; // Import the PrimaryButton component
+import EmptyStateCard from "@/src/components/ui/EmptyStateCard";
 
 /**
  * Props for the MetricEmptyState component.

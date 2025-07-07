@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 // Components
-import Modal from "@/components/ui/Modal";
-import PrimaryButton from "@/components/ui/PrimaryButton";
+import Modal from "@/src/components/ui/Modal";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
 
 // Types
 import { createMetricLogSchema } from "@/types/api/zod-metric-log.schema";

@@ -16,14 +16,14 @@ import { createMetricSchema } from "@/types/api/zod-metric.schema";
 import { CreateMetricRequestDTO } from "@/src/types/dtos/metric.dto";
 
 // components
-import ReusableFormField from "@/components/ui/ReusableFormField";
+import ReusableFormField from "@/src/components/ui/ReusableFormField";
 
 // utils
 import { createMetric } from "@/utils/interactors/metric.api";
 import { handleApiError } from "@/utils/handleApiError";
 
 // hooks
-import useMetricsLibrary from "@/hooks/useMetricsLibrary";
+import useMetricsLibrary from "@/src/hooks/useMetricsLibrary";
 
 // TODO 1: (Question) What's the best way to handle the form title and textfield value dynamically based on whether it's a create or update view based on the industry standard?
 // TODO 1.1: Add dynamic form title based on create or update view

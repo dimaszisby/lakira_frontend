@@ -1,8 +1,8 @@
 // MetricHeaderSection.tsx
 
 // components
-import { DataLabel } from "@/components/ui/DataLabel";
-import OverlineLabel from "@/components/ui/OverlineLabel";
+import { DataLabel } from "@/src/components/ui/DataLabel";
+import OverlineLabel from "@/src/components/ui/OverlineLabel";
 import { safeLabel } from "@/utils/helpers/labelHelper";
 import { PencilSimple } from "phosphor-react";
 

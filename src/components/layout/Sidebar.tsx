@@ -13,11 +13,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { List, X } from "phosphor-react";
-import Modal from "@/components/ui/Modal"; // ✅ Ensure correct import (folder renamed to "components")
+import Modal from "@/src/components/ui/Modal"; // ✅ Ensure correct import (folder renamed to "components")
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logoutUser } from "@/utils/interactors/auth.api";
 import { useAtom } from "jotai";
-import { userAtom } from "@/state/atoms";
+import { userAtom } from "@/utils/state/atoms";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 

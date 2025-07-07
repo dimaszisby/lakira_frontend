@@ -1,6 +1,6 @@
-import { DataLabel } from "@/components/ui/DataLabel";
-import SectionCard from "@/components/ui/SectionCard";
-import SubsectionCard from "@/components/ui/SubsectionCard";
+import { DataLabel } from "@/src/components/ui/DataLabel";
+import SectionCard from "@/src/components/ui/SectionCard";
+import SubsectionCard from "@/src/components/ui/SubsectionCard";
 import { PencilSimple } from "phosphor-react";
 import { safeLabel } from "@/utils/helpers/labelHelper";
 import { formatDate } from "@/utils/helpers/dateHelper"; // Ensure this utility exists for date formatting

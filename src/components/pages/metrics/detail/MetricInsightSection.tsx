@@ -1,4 +1,4 @@
-import SectionCard from "@/components/ui/SectionCard";
+import SectionCard from "@/src/components/ui/SectionCard";
 import { MetricLogResponseDTO } from "@/src/types/dtos/metric-log.dto";
 import classNames from "classnames";
 

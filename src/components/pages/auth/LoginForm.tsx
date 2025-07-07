@@ -6,7 +6,7 @@ import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useAtom } from "jotai";
 import { useRouter } from "next/navigation";
-import { userAtom } from "@/state/atoms";
+import { userAtom } from "@/utils/state/atoms";
 import { loginUser } from "@/utils/interactors/auth.api";
 import { handleApiError } from "@/utils/handleApiError";
 import { LoginRequestDTO } from "@/src/types/dtos/user.dto";

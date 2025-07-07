@@ -6,18 +6,18 @@ import { useState } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 // components
-import EmptyStateCard from "@/components/ui/EmptyStateCard";
-import PrimaryButton from "@/components/ui/PrimaryButton";
-import SectionCard from "@/components/ui/SectionCard";
-import SkeletonLoader from "@/components/ui/SekeletonLoader";
-import { Pagination } from "@/components/ui/Pagination";
+import EmptyStateCard from "@/src/components/ui/EmptyStateCard";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import SectionCard from "@/src/components/ui/SectionCard";
+import SkeletonLoader from "@/src/components/ui/SekeletonLoader";
+import { Pagination } from "@/src/components/ui/Pagination";
 import { LogTable } from "../../logs/LogTable";
 
 // utils
 import { handleApiError } from "@/utils/handleApiError";
 import { formatDate } from "@/utils/helpers/dateHelper";
 import { createMetricLogDummy } from "@/utils/interactors/metric-log.api";
-import useMetricLogs from "@/hooks/useMetricLogs";
+import useMetricLogs from "@/src/hooks/useMetricLogs";
 
 const PAGE_SIZE = 20;
 

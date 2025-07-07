@@ -1,5 +1,5 @@
 // app/auth/layout.tsx
-import Header from "@/components/layout/Header";
+import Header from "@/src/components/layout/Header";
 import { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
