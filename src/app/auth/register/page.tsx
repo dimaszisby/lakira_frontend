@@ -1,5 +1,5 @@
-import RegisterForm from "@/components/pages/auth/RegisterForm";
-import AuthLayout from "@/components/pages/auth/AuthLayout";
+import RegisterForm from "@/src/components/pages/auth/RegisterForm";
+import AuthLayout from "@/src/components/pages/auth/AuthLayout";
 
 export const metadata = {
   title: "Register - Lakira",

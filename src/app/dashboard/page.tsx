@@ -1,7 +1,7 @@
 "use client";
 
-import Layout from "@/components/layout/Layout";
-import { withAuth } from "@/components/hoc/withAuth";
+import Layout from "@/src/components/layout/Layout";
+import { withAuth } from "@/src/components/hoc/withAuth";
 
 
 const DashboardPage = () => {

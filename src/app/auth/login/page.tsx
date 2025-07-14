@@ -1,5 +1,7 @@
-import LoginForm from "@/components/pages/auth/LoginForm";
-import AuthLayout from "@/components/pages/auth/AuthLayout";
+// src/app/auth/login/page.tsx
+
+import LoginForm from "@/src/components/pages/auth/LoginForm";
+import AuthLayout from "@/src/components/pages/auth/AuthLayout";
 
 export const metadata = {
   title: "Login - Lakira",

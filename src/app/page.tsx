@@ -4,7 +4,7 @@
 import { useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation"; // ✅ Modern Next.js approach
-import { userAtom } from "@/state/atoms";
+import { userAtom } from "@/src/services/state/atoms";
 import Link from "next/link";
 
 export default function HomePage() {

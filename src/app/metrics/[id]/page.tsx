@@ -10,40 +10,36 @@ import Layout from "@/components/layout/Layout";
 import MetricLogsSection from "@/components/pages/metrics/detail/MetricLogSection";
 import MetricSettingsSection from "@/components/pages/metrics/detail/MetricSettingsSection";
 import MetricHeaderSection from "@/components/pages/metrics/detail/MetricHeaderSection";
-
-// Utilities
-import { CreateMetricLogRequestDTO } from "@/src/types/dtos/metric-log.dto";
 import MetricLogFormModal from "@/components/pages/logs/LogFormModal";
 import { withAuth } from "@/components/hoc/withAuth";
+import SkeletonLoader from "@/components/ui/SekeletonLoader";
 
- function MetricDetailPage() {
+// Hooks
+import { useMetricDetails } from "@/features/metrics/hooks";
+
+// Utilities
+import { extractMetricCore } from "@/features/metrics/helper";
+
+function MetricDetailPage() {
   const params = useParams();
   const metricId = params?.id as string;
   const [isLogFormOpen, setLogFormOpen] = useState(false);
 
-  const handleAddLog = async (_form: CreateMetricLogRequestDTO) => {
-    // try {
-    //   // Example: call API
-    //   await createMetricLogAPI(metricId, form); // implement this function
-    //   toast.success("Log added!");
-    //   setAddLogOpen(false);
-    //   // Trigger data refetch if needed!
-    //   queryClient.invalidateQueries(["metricDetail", metricId]);
-    // } catch (e) {
-    //   toast.error("Failed to add log");
-    // }
-  };
+  const {
+    data: metricDetail,
+    isLoading,
+    error,
+  } = useMetricDetails(metricId, [
+    "settings",
+    "category",
+    // Dev Note: Logs is fetched in MetricLogsSection to maintain decoupling
+  ]);
 
-  // Sort logs newest to oldest (if present)
-  // const sortedLogs = useMemo(() => {
-  //   // Handles case where metric or logs are undefined/null
-  //   if (!metric || !Array.isArray(metric.logs)) return [];
+  if (isLoading) return <SkeletonLoader />;
+  if (error) return <div>Error loading metric details: {error.message}</div>; // Handle error gracefully
+  if (!metricDetail) return <div>Empty metric details</div>; // Or handle gracefully
 
-  //   // Ensure logs are sorted by loggedAt in descending order
-  //   return [...metric.logs].sort(
-  //     (a, b) => new Date(b.loggedAt).getTime() - new Date(a.loggedAt).getTime()
-  //   );
-  // }, [metric]);
+  const metricCore = extractMetricCore(metricDetail);
 
   return (
     <Layout>
@@ -56,7 +52,7 @@ import { withAuth } from "@/components/hoc/withAuth";
         /> */}
 
         {/* Metric Card Header */}
-        <MetricHeaderSection metricId={metricId} onEditMetric={() => {}} />
+        <MetricHeaderSection metric={metricCore} onEditMetric={() => {}} />
 
         {/* Metric Insight Section */}
         {/* <MetricInsightSection logs={sortedLogs} /> */}
@@ -67,20 +63,14 @@ import { withAuth } from "@/components/hoc/withAuth";
           onAddLog={() => setLogFormOpen(true)}
         />
         <MetricLogFormModal
+          metricId={metricId}
           open={isLogFormOpen}
           onClose={() => setLogFormOpen(false)}
-          onSubmit={() =>
-            handleAddLog({
-              logValue: 0, // Placeholder value, replace with actual input
-              type: "manual", // Placeholder type, replace with actual input
-              loggedAt: new Date(),
-            })
-          }
         />
 
         {/* Settings Section */}
         {/* TODO: Development stuck here because no strategy yet to how to handle Metric that not have/generated MetricSettings yet */}
-        <MetricSettingsSection id={metricId} metricId={metricId} />
+        <MetricSettingsSection settings={metricDetail?.settings} />
       </div>
     </Layout>
   );

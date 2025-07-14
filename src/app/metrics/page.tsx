@@ -1,87 +1,25 @@
 // app/metrics/page.tsx
 
-// "use client";
-
-// import { useState } from "react";
-// import useMetrics from "@/hooks/useMetrics"; // Import the new hook
-// import SkeletonLoader from "@/components/ui/SekeletonLoader";
-// import MetricForm from "@/components/pages/metrics/MetricForm";
-// import Modal from "@/components/ui/Modal";
-// import Layout from "@/components/layout/Layout";
-// import { MetricLibraryDomain } from "@/src/types/domain/metric.domain";
-// import MetricEmptyState from "@/components/pages/metrics/MetricEmptyState"; // Import the new component
-// import MetricLibraryCard from "@/components/pages/metrics/MetricLibraryCard"; // Import the MetricLibraryCard component
-// import PrimaryButton from "@/components/ui/PrimaryButton";
-
-// console.log("MetricsIndex component rendering");
-
-// export default function MetricsPage() {
-//   // State for controlling the visibility of the metric creation modal
-//   const [isModalOpen, setModalOpen] = useState(false);
-
-//   // Use the useMetrics hook to fetch metrics data
-//   const { metrics, isLoading, isError } = useMetrics();
-
-//   // Display an error message if there was an error loading the metrics
-//   if (isError) return <p className="text-red-500">Error loading metrics.</p>;
-
-//   return (
-//     <Layout>
-//       {/* Wrap page inside Layout component for consistent styling */}
-//       <div className="container mx-auto p-6">
-//         <h1 className="text-3xl font-bold mb-4">📊 My Metrics</h1>
-
-//         {/* Button to open the metric creation modal */}
-//         <div className="flex justify-end mb-4">
-//           <PrimaryButton
-//             onClick={() => setModalOpen(true)}
-//             ariaLabel="Create Your First Metric"
-//             className="mt-4"
-//           >
-//             ➕ Create Your First Metric
-//           </PrimaryButton>
-//         </div>
-
-//         {/* Display a skeleton loader while the metrics are loading */}
-//         {isLoading ? (
-//           <SkeletonLoader count={10} className="h-10" />
-//         ) : metrics.length === 0 ? (
-//           // Display the MetricEmptyState component if there are no metrics
-//           <MetricEmptyState onOpenModal={() => setModalOpen(true)} />
-//         ) : (
-//           // Display the list of metrics
-//           <ul className="list-item space-y-4">
-//             {metrics.map((metric: MetricLibraryDomain) => (
-//               <MetricLibraryCard key={metric.id} metric={metric} />
-//             ))}
-//           </ul>
-//         )}
-
-//         {/* Modal for creating a new metric */}
-//         <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-//           <MetricForm onClose={() => setModalOpen(false)} />
-//         </Modal>
-//       </div>
-//     </Layout>
-//   );
-// }
-
 "use client";
 
 import { useState } from "react";
-import useMetrics from "@/hooks/useMetrics";
-import SkeletonLoader from "@/components/ui/SekeletonLoader";
-import MetricForm from "@/components/pages/metrics/MetricForm";
-import Modal from "@/components/ui/Modal";
-import Layout from "@/components/layout/Layout";
-import MetricEmptyState from "@/components/pages/metrics/MetricEmptyState";
-import PrimaryButton from "@/components/ui/PrimaryButton";
-import { Pagination } from "@/components/ui/Pagination"; // Assume this is your pagination component
-import { MetricTable } from "@/components/pages/metrics/MetricTable";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { handleApiError } from "@/utils/handleApiError";
-import { createMetricDummy } from "@/utils/interactors/metric.api";
+
+// Services
+import { handleApiError } from "@/services/api/handleApiError";
+import { createMetricDummy } from "@/services/api/metric.api";
+import { useMetricsLibrary } from "@/src/features/metrics/hooks";
+
+// Components
 import { withAuth } from "@/components/hoc/withAuth";
+import SkeletonLoader from "@/src/components/ui/SekeletonLoader";
+import MetricForm from "@/src/components/pages/metrics/MetricForm";
+import Modal from "@/src/components/ui/Modal";
+import Layout from "@/src/components/layout/Layout";
+import MetricEmptyState from "@/src/components/pages/metrics/MetricEmptyState";
+import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import { Pagination } from "@/src/components/ui/Pagination";
+import { MetricTable } from "@/src/components/pages/metrics/MetricTable";
 
 const PAGE_SIZE = 20;
 
@@ -91,7 +29,10 @@ function MetricsPage() {
   const queryClient = useQueryClient();
 
   // Use the new useMetrics with pagination
-  const { metrics, isLoading, isError, total } = useMetrics(page, PAGE_SIZE);
+  const { metrics, isLoading, isError, total } = useMetricsLibrary(
+    page,
+    PAGE_SIZE
+  );
 
   // Calculate total pages
   const totalPages = total ? Math.ceil(total / PAGE_SIZE) : 1;
