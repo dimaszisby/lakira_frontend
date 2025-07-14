@@ -9,7 +9,7 @@ import {
   zMetricDefaultUnit,
   zMetricIsPublic,
   zMetricOriginalId,
-} from "@/validators/zod-rules";
+} from "@/src/constants/zod-rules";
 
 export const createMetricSchema = z.object({
   body: z.object({

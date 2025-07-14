@@ -6,7 +6,7 @@ import {
   zMetricCategoryName,
   zMetricCategoryColor,
   zMetricCategoryIcon,
-} from "@/validators/zod-rules";
+} from "@/src/constants/zod-rules";
 
 /**
  * * Metric Category Schema Validator

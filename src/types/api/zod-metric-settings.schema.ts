@@ -8,7 +8,7 @@ import {
   zGoalType,
   zAlertThresholds,
   zDisplayOptions,
-} from "@/validators/zod-rules";
+} from "@/src/constants/zod-rules";
 
 export const createMetricSettingsSchema = z.object({
   body: z

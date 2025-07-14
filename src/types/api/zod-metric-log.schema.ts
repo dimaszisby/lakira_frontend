@@ -5,7 +5,7 @@ import {
   zLogType,
   zPositiveFloat,
   zUUID,
-} from "@/validators/zod-rules";
+} from "@/src/constants/zod-rules";
 import { z } from "zod";
 
 export const createMetricLogSchema = z.object({

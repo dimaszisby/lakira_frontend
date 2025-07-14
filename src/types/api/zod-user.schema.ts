@@ -9,7 +9,7 @@ import {
   zPasswordConfirmation,
   zPublicProfile,
   zRole,
-} from "@/validators/zod-rules";
+} from "@/src/constants/zod-rules";
 
 /**
  * * Zod Validation + Inferred Types
