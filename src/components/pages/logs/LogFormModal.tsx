@@ -1,78 +1,116 @@
 // components/features/metrics/MetricLogAddModal.tsx
 
+"use client";
+
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Components
 import Modal from "@/src/components/ui/Modal";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 
-// Types
-import { createMetricLogSchema } from "@/types/api/zod-metric-log.schema";
+// Services
+import { useCreateMetricLog } from "@/src/features/metricLogs/hooks";
 
-// Zod schema for the form body only (strip the params)
-// TODO: Might need to be refactored later
-const formSchema = createMetricLogSchema.shape.body;
-type FormInputs = z.infer<typeof formSchema>;
+// Types
+import { LogFormInputs, logFormSchema } from "@/features/metricLogs/types";
 
 // Props
 interface MetricLogModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: FormInputs) => Promise<void>;
-  defaultType?: "manual" | "automatic";
+  metricId: string;
+  defaultType?: "manual" | "automatic"; // Dev Note: Currently hardcoded to "manual" or "automatic", do not change
 }
 
 export const MetricLogFormModal: React.FC<MetricLogModalProps> = ({
   open,
   onClose,
-  onSubmit,
-  defaultType = "manual",
+  metricId,
+  defaultType = "manual", //  Dev Note: Currently hardcoded, do not change
 }) => {
+  const queryClient = useQueryClient();
+
+  // Form handler
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm<FormInputs>({
-    resolver: zodResolver(formSchema),
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<LogFormInputs>({
+    resolver: zodResolver(logFormSchema),
     mode: "onChange",
     defaultValues: {
+      metricId: metricId,
       type: defaultType,
-      logValue: undefined,
-      loggedAt: new Date(), // e.g., "2025-06-17T12:00"
+      loggedAt: new Date(), // Set default to current date and time
     },
   });
 
-  // // UseMutation for CREATE request
-  // const { mutateAsync: createLog, isLoading: isSubmittingLog } = useMutation({
-  //   mutationFn: async (data: FormInputs) => {
-  //     // Call the API to create the log entry
-  //     // Replace with your actual API call
-  //     return await onSubmit(data);
-  //   }
-  // });
+  // Mutation setup with onSuccess to refetch logs and close modal
+  const {
+    createMetricLog,
+    isError,
+    error: mutationError,
+  } = useCreateMetricLog(async () => {
+    // Invalidate the logs query to refetch with fresh data
+    queryClient.invalidateQueries({
+      queryKey: ["metricLogs", metricId],
+      exact: false,
+    });
+    reset();
+    onClose();
+  });
 
-  // Clean up when modal closes
+  // Mutation submtit handler
+  const onSubmit = async (data: LogFormInputs) => {
+    try {
+      await createMetricLog({
+        ...data,
+        type: defaultType,
+        metricId,
+      });
+    } catch (error) {
+      console.error("Error creating metric log:", error);
+    }
+  };
+
+  // When modal closes, always reset the form
   React.useEffect(() => {
     if (!open) reset();
   }, [open, reset]);
+
+  if (!metricId) {
+    return (
+      <p className="mt-4 mb-4 text-red-500 text-xs">
+        Metric ID is required to add a log.
+      </p>
+    );
+  }
 
   return (
     <Modal isOpen={open} onClose={onClose}>
       <form
         className="w-full max-w-md bg-white p-6 rounded-2xl shadow"
-        onSubmit={handleSubmit(async (data) => {
-          await onSubmit(data);
-          reset();
-        })}
+        onSubmit={handleSubmit(onSubmit)}
+        autoComplete="off"
       >
         <h2 className="text-xl font-bold mb-4">Add Log Entry</h2>
 
+        {isError && (
+          <p className="mt-4 mb-4 text-red-500 text-xs">
+            {mutationError?.message || "Failed to add log. Please try again."}
+          </p>
+        )}
+
+        {/* Hidden metricId field */}
+        <input type="hidden" {...register("metricId")} value={metricId} />
+
         {/* Type Field */}
-        <div className="mb-4">
+        {/* Dev Note: Currently Hardcoded - do not change */}
+        {/* <div className="mb-4">
           <label className="block mb-1 text-sm font-semibold">
             Type
             <select
@@ -86,7 +124,7 @@ export const MetricLogFormModal: React.FC<MetricLogModalProps> = ({
           {errors.type && (
             <p className="text-red-500 text-xs">{errors.type.message}</p>
           )}
-        </div>
+        </div> */}
 
         {/* Value Field */}
         <div className="mb-4">
@@ -120,6 +158,14 @@ export const MetricLogFormModal: React.FC<MetricLogModalProps> = ({
           )}
         </div>
 
+        {!isValid && (
+          <div>
+            <p className="mt-4 mb-4 text-red-500 text-xs">
+              All fields are required.
+            </p>
+          </div>
+        )}
+
         {/* Buttons */}
         <div className="flex gap-2 mt-6 justify-end">
           <button
@@ -132,7 +178,7 @@ export const MetricLogFormModal: React.FC<MetricLogModalProps> = ({
           </button>
           <PrimaryButton
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isValid}
             className="min-w-[120px]"
           >
             {isSubmitting ? "Saving..." : "Save"}
