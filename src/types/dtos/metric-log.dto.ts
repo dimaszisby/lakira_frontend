@@ -72,6 +72,11 @@ export interface MetricLogResponseDTO {
  */
 export type MetricLogListResponseDTO = MetricLogResponseDTO[];
 
+export interface PaginatedMetricLogListResponseDTO {
+  logs: MetricLogResponseDTO[];
+  total: number;
+}
+
 /**
  * @typedef CreateMetricLogRequestDTO
  * @description Represents the expected structure of the request body when creating a new metric log entry.

@@ -1,13 +1,14 @@
 // components/MetricTable.tsx
 
 import { MetricLogResponseDTO } from "@/src/types/dtos/metric-log.dto";
-import { LogTableRow } from "./LogTableRow";
+import LogTableRow from "./LogTableRow";
 
 interface LogTableProps {
   logs: MetricLogResponseDTO[];
+  onRowClick?: (log: MetricLogResponseDTO) => void;
 }
 
-export const LogTable: React.FC<LogTableProps> = ({ logs }) => {
+const LogTable: React.FC<LogTableProps> = ({ logs, onRowClick }) => {
   return (
     <div className="overflow-x-auto rounded-xl shadow-sm bg-red-100">
       <table className="min-w-full divide-y divide-gray-200">
@@ -19,10 +20,12 @@ export const LogTable: React.FC<LogTableProps> = ({ logs }) => {
         </thead>
         <tbody>
           {logs.map((log) => (
-            <LogTableRow key={log.id} log={log} />
+            <LogTableRow key={log.id} log={log} onClick={onRowClick} />
           ))}
         </tbody>
       </table>
     </div>
   );
 };
+
+export default LogTable;

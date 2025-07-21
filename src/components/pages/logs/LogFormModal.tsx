@@ -2,7 +2,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
@@ -10,77 +10,161 @@ import { useQueryClient } from "@tanstack/react-query";
 // Components
 import Modal from "@/src/components/ui/Modal";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
+import ReusableFormField from "../../ui/ReusableFormField";
 
 // Services
-import { useCreateMetricLog } from "@/src/features/metricLogs/hooks";
+import {
+  useCreateMetricLog,
+  useDeleteMetricLog,
+  useUpdateMetricLog,
+} from "@/src/features/metricLogs/hooks";
 
 // Types
 import { LogFormInputs, logFormSchema } from "@/features/metricLogs/types";
+import { MetricLogResponseDTO } from "@/src/types/dtos/metric-log.dto";
 
-// Props
 interface MetricLogModalProps {
   open: boolean;
   onClose: () => void;
   metricId: string;
-  defaultType?: "manual" | "automatic"; // Dev Note: Currently hardcoded to "manual" or "automatic", do not change
+  initialLog?: MetricLogResponseDTO | null;
 }
 
 export const MetricLogFormModal: React.FC<MetricLogModalProps> = ({
   open,
   onClose,
   metricId,
-  defaultType = "manual", //  Dev Note: Currently hardcoded, do not change
+  initialLog,
 }) => {
+  const isEditMode = !!initialLog;
   const queryClient = useQueryClient();
 
-  // Form handler
+  // Form Setup
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting, isValid },
+    setValue,
   } = useForm<LogFormInputs>({
+    // Problem Here: Create and Update have different schemas
     resolver: zodResolver(logFormSchema),
     mode: "onChange",
-    defaultValues: {
-      metricId: metricId,
-      type: defaultType,
-      loggedAt: new Date(), // Set default to current date and time
-    },
+    defaultValues: isEditMode
+      ? {
+          metricId,
+          logValue: initialLog?.logValue,
+          loggedAt: initialLog?.loggedAt
+            ? new Date(initialLog.loggedAt)
+            : undefined,
+          type: initialLog?.type || "manual",
+        }
+      : {
+          metricId,
+          logValue: undefined,
+          loggedAt: new Date(),
+          type: "manual",
+        },
   });
 
+  // When modal opens for edit mode, update values
+  useEffect(() => {
+    if (open && isEditMode && initialLog) {
+      setValue("metricId", metricId);
+      setValue("logValue", initialLog.logValue);
+      setValue(
+        "loggedAt",
+        initialLog.loggedAt ? new Date(initialLog.loggedAt) : new Date()
+      );
+      setValue("type", initialLog.type || "manual");
+    } else if (open && !isEditMode) {
+      reset({
+        metricId,
+        logValue: undefined,
+        loggedAt: new Date(),
+        type: "manual",
+      });
+    }
+  }, [open, isEditMode, initialLog, metricId, setValue, reset]);
+
+  // * Mutation Hooks
   // Mutation setup with onSuccess to refetch logs and close modal
   const {
     createMetricLog,
-    isError,
-    error: mutationError,
+    isPending: isCreating,
+    error: createError,
   } = useCreateMetricLog(async () => {
     // Invalidate the logs query to refetch with fresh data
     queryClient.invalidateQueries({
       queryKey: ["metricLogs", metricId],
       exact: false,
     });
-    reset();
-    onClose();
   });
 
-  // Mutation submtit handler
+  const {
+    updateMetricLog,
+    isPending: isUpdating,
+    error: updateError,
+  } = useUpdateMetricLog(async () => {
+    // Invalidate the logs query to refetch with fresh data
+    await queryClient.invalidateQueries({
+      queryKey: ["metricLogs", metricId],
+      exact: false,
+    });
+  });
+
+  // Mutation setup for delete MetricLog
+  const {
+    deleteMetricLog,
+    isPending: isDeleting,
+    error: deleteError,
+  } = useDeleteMetricLog(async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ["metricLogs", metricId],
+      exact: false,
+    });
+  });
+
+  // * Submit Handlers
+  // Handles form submission for both create and edit modes
+  // Problem Here: Create and Update have different schemas
   const onSubmit = async (data: LogFormInputs) => {
     try {
-      await createMetricLog({
-        ...data,
-        type: defaultType,
-        metricId,
-      });
+      if (isEditMode && initialLog) {
+        const { logValue, loggedAt, type } = data;
+
+        await updateMetricLog({
+          metricLogId: initialLog.id,
+          metricLog: { logValue, loggedAt, type },
+        });
+      } else {
+        await createMetricLog(data);
+      }
+      reset();
+      onClose();
     } catch (error) {
       console.error("Error creating metric log:", error);
     }
   };
 
-  // When modal closes, always reset the form
+  const onDeleteSubmit = async () => {
+    if (!initialLog) return;
+    try {
+      await deleteMetricLog(initialLog.id);
+      reset();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting metric log:", error);
+    }
+  };
+
+  // Reset form on modal close
   React.useEffect(() => {
     if (!open) reset();
   }, [open, reset]);
+
+  const errorMsg =
+    createError?.message || updateError?.message || deleteError?.message || "";
 
   if (!metricId) {
     return (
@@ -93,55 +177,32 @@ export const MetricLogFormModal: React.FC<MetricLogModalProps> = ({
   return (
     <Modal isOpen={open} onClose={onClose}>
       <form
-        className="w-full max-w-md bg-white p-6 rounded-2xl shadow"
+        className="w-full max-w-md bg-white p-6"
         onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"
       >
-        <h2 className="text-xl font-bold mb-4">Add Log Entry</h2>
+        {/* Title */}
+        <h2 className="text-xl font-bold mb-4">
+          {isEditMode ? "Edit Log Entry" : "Add Log Entry"}
+        </h2>
 
-        {isError && (
-          <p className="mt-4 mb-4 text-red-500 text-xs">
-            {mutationError?.message || "Failed to add log. Please try again."}
-          </p>
-        )}
+        {/* Error Message */}
+        <div className="inline-block h-2 mb-4">
+          {errorMsg && <p className="text-red-500 text-xs mb-2">{errorMsg}</p>}
+        </div>
 
         {/* Hidden metricId field */}
         <input type="hidden" {...register("metricId")} value={metricId} />
 
-        {/* Type Field */}
-        {/* Dev Note: Currently Hardcoded - do not change */}
-        {/* <div className="mb-4">
-          <label className="block mb-1 text-sm font-semibold">
-            Type
-            <select
-              className="w-full px-3 py-2 border rounded"
-              {...register("type")}
-            >
-              <option value="manual">Manual</option>
-              <option value="automatic">Automatic</option>
-            </select>
-          </label>
-          {errors.type && (
-            <p className="text-red-500 text-xs">{errors.type.message}</p>
-          )}
-        </div> */}
-
         {/* Value Field */}
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-semibold">
-            Value
-            <input
-              type="number"
-              step="any"
-              min="0"
-              className="w-full px-3 py-2 border rounded"
-              {...register("logValue", { valueAsNumber: true })}
-            />
-          </label>
-          {errors.logValue && (
-            <p className="text-red-500 text-xs">{errors.logValue.message}</p>
-          )}
-        </div>
+        <ReusableFormField
+          label="Log Value"
+          type="number"
+          register={register("logValue", { valueAsNumber: true })}
+          placeholder="10"
+          isSubmitting={isSubmitting || isCreating || isUpdating}
+          error={errors.logValue?.message}
+        />
 
         {/* Logged At Field */}
         <div className="mb-4">
@@ -158,31 +219,56 @@ export const MetricLogFormModal: React.FC<MetricLogModalProps> = ({
           )}
         </div>
 
-        {!isValid && (
-          <div>
-            <p className="mt-4 mb-4 text-red-500 text-xs">
-              All fields are required.
-            </p>
-          </div>
-        )}
+        <div className="inline-block h-2">
+          {!isValid && (
+            <p className="text-red-500 text-xs">All fields are required.</p>
+          )}
+        </div>
 
         {/* Buttons */}
-        <div className="flex gap-2 mt-6 justify-end">
-          <button
-            type="button"
-            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-          <PrimaryButton
-            type="submit"
-            disabled={isSubmitting || !isValid}
-            className="min-w-[120px]"
-          >
-            {isSubmitting ? "Saving..." : "Save"}
-          </PrimaryButton>
+        <div className="flex-row space-y-4">
+          <div className="flex gap-2 mt-6 justify-center items">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 w-full"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+
+            <PrimaryButton
+              type="submit"
+              disabled={isSubmitting || !isValid}
+              className="w-full"
+            >
+              {isSubmitting || isCreating || isUpdating
+                ? "Saving..."
+                : isEditMode
+                ? "Save"
+                : "Add"}
+            </PrimaryButton>
+          </div>
+
+          <hr style={{ borderTop: "1px solid lightgrey" }}></hr>
+
+          {/* Delete button (edit mode only) */}
+          {isEditMode && (
+            <>
+              <hr
+                style={{ borderTop: "1px solid lightgrey" }}
+                className="my-4"
+              />
+              <button
+                type="button"
+                className="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-500 w-full"
+                onClick={onDeleteSubmit}
+                disabled={isSubmitting || isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Log"}
+              </button>
+            </>
+          )}
         </div>
       </form>
     </Modal>

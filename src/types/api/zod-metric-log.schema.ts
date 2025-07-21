@@ -1,5 +1,12 @@
 // src/types/api/zod-metric-log.schema.ts
 
+// Developer Note: This code is part of a Zod schema definition for metric logs in a TypeScript application.
+// It defines the structure and validation rules for creating, updating, retrieving, and deleting metric logs.
+// The schemas are used to ensure that the data sent to and received from the API adheres to the expected format.
+// It also includes a schema for generating dummy metric logs for testing purposes.
+
+// Developer Note: This schema reflects current API endpoints and their expected request/response structures.
+
 import {
   zDateOptional,
   zLogType,
@@ -35,15 +42,20 @@ export const getMetricLogSchema = z.object({
 });
 
 export const getAllMetricLogsSchema = z.object({
-  query: z.object({
-    metricId: zUUID.optional(),
-    startDate: zDateOptional,
-    endDate: zDateOptional,
-    sortBy: z.string().optional(),
-    order: z.enum(["asc", "desc"]).optional(),
-    page: z.preprocess(Number, z.number().int().min(1)).optional().default(1),
-    limit: z.preprocess(Number, z.number().int().min(1)).optional().default(10),
-  }).optional(),
+  query: z
+    .object({
+      metricId: zUUID.optional(),
+      startDate: zDateOptional,
+      endDate: zDateOptional,
+      sortBy: z.string().optional(),
+      order: z.enum(["asc", "desc"]).optional(),
+      page: z.preprocess(Number, z.number().int().min(1)).optional().default(1),
+      limit: z
+        .preprocess(Number, z.number().int().min(1))
+        .optional()
+        .default(10),
+    })
+    .optional(),
 });
 
 export const deleteMetricLogSchema = z.object({

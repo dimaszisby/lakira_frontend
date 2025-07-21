@@ -10,26 +10,23 @@ import { formatDate } from "@/utils/helpers/dateHelper";
 
 interface LogTableRowProps {
   log: MetricLogResponseDTO;
+  onClick?: (log: MetricLogResponseDTO) => void;
 }
 
-export const LogTableRow: React.FC<LogTableRowProps> = ({ log }) => {
-  // Build the detail URL (adjust to your routing)
-  const detailUrl = `/log/${log.id}`;
-
+const LogTableRow: React.FC<LogTableRowProps> = ({ log, onClick }) => {
   return (
     <tr
       tabIndex={0}
       role="button"
       className="bg-white hover:bg-gray-50 cursor-pointer transition"
-      onClick={() => (window.location.href = detailUrl)}
+      onClick={() => onClick?.(log)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
-          window.location.href = detailUrl;
+          onClick?.(log);
         }
       }}
       aria-label={`View details for ${log.loggedAt}`}
-      // Optionally add data-testid for testing
-      data-testid={`metric-row-${log.id}`}
+      data-testid={`metric-row-${log.id}`} // Optionally add data-testid for testing
     >
       {/* Log Date */}
       <td className="px-4 py-2 font-semibold">
@@ -45,3 +42,5 @@ export const LogTableRow: React.FC<LogTableRowProps> = ({ log }) => {
     </tr>
   );
 };
+
+export default LogTableRow;
