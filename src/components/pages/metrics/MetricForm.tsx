@@ -3,40 +3,60 @@
 "use client";
 
 // libraries
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "react-use";
-import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 // types
-import { createMetricSchema } from "@/types/api/zod-metric.schema";
-import { CreateMetricRequestDTO } from "@/src/types/dtos/metric.dto";
+import { MetricResponseDTO } from "@/src/types/dtos/metric.dto";
 
 // components
 import ReusableFormField from "@/src/components/ui/ReusableFormField";
 
-// utils
-import { createMetric } from "@/utils/interactors/metric.api";
-import { handleApiError } from "@/utils/handleApiError";
-
 // hooks
-import useMetricsLibrary from "@/src/hooks/useMetricsLibrary";
+import {
+  useCreateMetric,
+  useDeleteMetric,
+  useMetricsLibrary,
+  useUpdateMetric,
+} from "@/src/features/metrics/hooks";
+import {
+  MetricFormInputs,
+  metricFormSchema,
+} from "@/src/features/metrics/types";
+import PrimaryButton from "../../ui/PrimaryButton";
+import Modal from "../../ui/Modal";
 
 // TODO 1: (Question) What's the best way to handle the form title and textfield value dynamically based on whether it's a create or update view based on the industry standard?
 // TODO 1.1: Add dynamic form title based on create or update view
 // TODO 1.2: Add dynamic textfield value if on update view
+
+interface MetricModalProps {
+  open: boolean;
+  onClose: () => void;
+  metricId: string | null;
+  initialMetric?: MetricResponseDTO | null;
+}
 
 /**
  * MetricForm Component
  *
  * This component provides a form for creating new metrics.
  */
-export default function MetricForm({ onClose }: { onClose: () => void }) {
+export const MetricForm: React.FC<MetricModalProps> = ({
+  open,
+  onClose,
+  metricId,
+  initialMetric,
+}) => {
+  const isEditMode = !!initialMetric;
   const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // To check if metric already exists to prevent dupplications
   const { metrics } = useMetricsLibrary(1, 20);
   const [debouncedName, setDebouncedName] = useState("");
   const [debouncedDefaultUnit, setDebouncedDefaultUnit] = useState("");
@@ -49,11 +69,41 @@ export default function MetricForm({ onClose }: { onClose: () => void }) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
-  } = useForm<CreateMetricRequestDTO>({
-    resolver: zodResolver(createMetricSchema.shape.body),
+    reset,
+    formState: { errors, isSubmitting, isValid },
+    setValue,
+  } = useForm<MetricFormInputs>({
+    resolver: zodResolver(metricFormSchema),
     mode: "onChange",
+    defaultValues: isEditMode
+      ? {
+          categoryId: initialMetric?.categoryId ?? undefined,
+          originalMetricId: initialMetric?.originalMetricId ?? undefined,
+          name: initialMetric?.name ?? "",
+          description: initialMetric?.description ?? "",
+          defaultUnit: initialMetric?.defaultUnit ?? "",
+          isPublic: initialMetric?.isPublic ?? false,
+        }
+      : {
+          categoryId: undefined,
+          originalMetricId: undefined,
+          name: "",
+          description: "",
+          defaultUnit: "",
+          isPublic: false,
+        },
   });
+
+  useEffect(() => {
+    if (open && isEditMode && initialMetric) {
+      setValue("categoryId", initialMetric.categoryId ?? undefined);
+      setValue("originalMetricId", initialMetric.originalMetricId ?? undefined);
+      setValue("name", initialMetric.name ?? "");
+      setValue("description", initialMetric.description ?? "");
+      setValue("defaultUnit", initialMetric.defaultUnit ?? "");
+      setValue("isPublic", initialMetric.isPublic ?? false);
+    }
+  }, [open, isEditMode, initialMetric, metricId, setValue, reset]);
 
   // Debounce the name input to prevent excessive API calls
   const [cancelName] = useDebounce(
@@ -77,83 +127,79 @@ export default function MetricForm({ onClose }: { onClose: () => void }) {
 
   cancelDefaultUnit();
 
-  // UseMutation for API request
-  const { mutateAsync, error: mutationError } = useMutation({
-    mutationFn: createMetric,
-    /**
-     * onSuccess callback for the useMutation hook.
-     * Invalidates the 'metrics' query and closes the modal.
-     */
-    onSuccess: () => {
-      console.log("Mutation succeeded");
-      queryClient.invalidateQueries({ queryKey: ["metrics"] });
-      onClose();
-    },
-    /**
-     * onError callback for the useMutation hook.
-     * Logs the error and sets isSubmitting to false.
-     * @param {unknown} error - The error object.
-     */
-    onError: (error: unknown) => {
-      const errorMessages = handleApiError(error as Error);
-      console.error("Mutation error:", errorMessages);
-      setIsSubmitting(false);
-    },
+  // * Mutation Hooks
+  const {
+    createMetric,
+    isPending: isCreating,
+    error: createError,
+  } = useCreateMetric(async () => {
+    queryClient.invalidateQueries({ queryKey: ["metrics", metricId] });
   });
 
-  /**
-   * Form Submit Handler
-   * @param {z.infer<typeof createMetricSchema>["body"]} data - The form data.
-   */
-  const onSubmit = async (data: z.infer<typeof createMetricSchema>["body"]) => {
+  const {
+    updateMetric,
+    isPending: isUpdating,
+    error: updateError,
+  } = useUpdateMetric(async () => {
+    queryClient.invalidateQueries({ queryKey: ["metrics", metricId] });
+  });
+
+  const {
+    deleteMetric,
+    isPending: isDeleting,
+    error: deleteError,
+  } = useDeleteMetric(async () => {
+    queryClient.invalidateQueries({ queryKey: ["metrics", metricId] });
+  });
+
+  // * Submit Handlers
+  const onSubmit = async (data: MetricFormInputs) => {
     if (!isValid) {
       console.log("Form is not valid, preventing submission.");
       return;
     }
 
-    console.log("onSubmit called with data:", data);
-    setIsSubmitting(true);
-
-    // Note: We are setting the `isPublic` to `true` by default
-    // Public profile will be implemented in a future release
-    const finalData: CreateMetricRequestDTO = {
-      ...data,
-      isPublic: true,
-    };
-
     try {
-      console.log("Submitting metric data:", finalData);
-      await mutateAsync(finalData);
-      console.log("mutateAsync completed successfully");
+      if (isEditMode && initialMetric && metricId) {
+        await updateMetric({ metricId: metricId, metric: data });
+      } else {
+        await createMetric(data);
+      }
+      reset();
+      onClose();
     } catch (error) {
-      console.error("Form submission error:", error);
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error creating metric log:", error);
+    }
+  };
+
+  const onDeleteSubmit = async () => {
+    if (!initialMetric) return;
+    try {
+      await deleteMetric(initialMetric.id);
+      reset();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting metric log:", error);
     }
   };
 
   // Inline Error Message for API Errors
   // This will be displayed if the API call fails
-  const safeErrorMessage = useMemo(() => {
-    if (!mutationError) return null;
-    return (
-      handleApiError(mutationError as Error)[0] ||
-      "An unexpected error occurred."
-    );
-  }, [mutationError]);
+  // const safeErrorMessage = useMemo(() => {
+  //   if (!mutationError) return null;
+  //   return (
+  //     handleApiError(mutationError as Error)[0] ||
+  //     "An unexpected error occurred."
+  //   );
+  // }, [mutationError]);
+
+  const errorMsg =
+    createError?.message || updateError?.message || deleteError?.message || "";
 
   return (
-    <div className="bg-white p-6 max-w-lg min-w-96 mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Manage Metric</h2>
-
-      {safeErrorMessage && (
-        <div className="text-red-500 mb-4">
-          Error creating metric: {safeErrorMessage}
-        </div>
-      )}
-
+    <Modal isOpen={open} onClose={onClose}>
       <form
-        className="space-y-8"
+        className="bg-white p-6 max-w-lg min-w-96 mx-auto space-y-8"
         onSubmit={handleSubmit((data) => {
           if (Object.keys(errors).length > 0) {
             console.log("Form has errors, preventing submission.");
@@ -162,6 +208,12 @@ export default function MetricForm({ onClose }: { onClose: () => void }) {
           onSubmit(data);
         })}
       >
+        <h2 className="text-xl font-semibold mb-4">Manage Metric</h2>
+
+        {/* Error Message */}
+        <div className="inline-block h-2 mb-4">
+          {errorMsg && <p className="text-red-500 text-xs mb-2">{errorMsg}</p>}
+        </div>
         <ReusableFormField
           label="Metric Name"
           type="text"
@@ -185,7 +237,7 @@ export default function MetricForm({ onClose }: { onClose: () => void }) {
           })}
           placeholder="e.g., Steps Walked"
           error={errors.name?.message}
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || isCreating || isUpdating}
         />
 
         <ReusableFormField
@@ -193,7 +245,7 @@ export default function MetricForm({ onClose }: { onClose: () => void }) {
           type="text"
           register={register("description")}
           placeholder="Optional description"
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || isCreating || isUpdating}
         />
 
         <ReusableFormField
@@ -206,17 +258,55 @@ export default function MetricForm({ onClose }: { onClose: () => void }) {
           })}
           placeholder="e.g., km, reps, hours"
           error={errors.defaultUnit?.message}
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || isCreating || isUpdating}
         />
 
-        <button
-          type="submit"
-          disabled={isSubmitting || !isValid}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition w-full disabled:bg-gray-400"
-        >
-          {isSubmitting ? "Saving..." : "Save Metric"}
-        </button>
+        {/* Buttons */}
+        <div className="flex-row space-y-4">
+          <div className="flex gap-2 mt-6 justify-center items">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 w-full"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+
+            <PrimaryButton
+              type="submit"
+              disabled={isSubmitting || !isValid}
+              className="w-full"
+            >
+              {isSubmitting || isCreating || isUpdating
+                ? "Saving..."
+                : isEditMode
+                ? "Save"
+                : "Add"}
+            </PrimaryButton>
+          </div>
+
+          {/* Delete button (edit mode only) */}
+          {isEditMode && (
+            <>
+              <hr
+                style={{ borderTop: "1px solid lightgrey" }}
+                className="my-4"
+              />
+              <button
+                type="button"
+                className="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-500 w-full"
+                onClick={onDeleteSubmit}
+                disabled={isSubmitting || isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Log"}
+              </button>
+            </>
+          )}
+        </div>
       </form>
-    </div>
+    </Modal>
   );
-}
+};
+
+export default MetricForm;

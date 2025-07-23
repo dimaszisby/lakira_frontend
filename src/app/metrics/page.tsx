@@ -3,78 +3,95 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Services
 import { handleApiError } from "@/services/api/handleApiError";
-import { createMetricDummy } from "@/services/api/metric.api";
-import { useMetricsLibrary } from "@/src/features/metrics/hooks";
+import {
+  useCreateMetricDummy,
+  useMetricsLibrary,
+} from "@/src/features/metrics/hooks";
 
 // Components
 import { withAuth } from "@/components/hoc/withAuth";
 import SkeletonLoader from "@/src/components/ui/SekeletonLoader";
 import MetricForm from "@/src/components/pages/metrics/MetricForm";
-import Modal from "@/src/components/ui/Modal";
 import Layout from "@/src/components/layout/Layout";
 import MetricEmptyState from "@/src/components/pages/metrics/MetricEmptyState";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { MetricTable } from "@/src/components/pages/metrics/MetricTable";
 
-const PAGE_SIZE = 20;
-
 function MetricsPage() {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
-  // Use the new useMetrics with pagination
-  const { metrics, isLoading, isError, total } = useMetricsLibrary(
-    page,
-    PAGE_SIZE
+  // * Const
+  const PAGE_SIZE = 20;
+  const DEFAULT_SORT_BY = "createdAt";
+  const DEFAULT_SORT_ORDER = "DESC";
+
+  // * State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState<string>(DEFAULT_SORT_BY);
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC" | null>(
+    DEFAULT_SORT_ORDER
   );
 
-  // Calculate total pages
-  const totalPages = total ? Math.ceil(total / PAGE_SIZE) : 1;
+  // * Mutation Hooks
+  // UseMutation for API request for MetricsLibrary with pagination
+  const { metrics, isLoading, isError, total } = useMetricsLibrary(
+    page,
+    PAGE_SIZE,
+    sortBy,
+    sortOrder
+  );
 
-  /**
-   * * Dummy Metrics
-   * UseMutation for API request for Creating Dummy Metrics
-   */
-  const { mutateAsync } = useMutation({
-    mutationFn: createMetricDummy,
-    /**
-     * onSuccess callback for the useMutation hook.
-     * Invalidates the 'metrics' query and closes the modal.
-     */
-    onSuccess: () => {
-      console.log("Mutation succeeded");
-      queryClient.invalidateQueries({ queryKey: ["metrics"] });
-    },
-    /**
-     * onError callback for the useMutation hook.
-     * Logs the error and sets isSubmitting to false.
-     * @param {unknown} error - The error object.
-     */
-    onError: (error: unknown) => {
-      const errorMessages = handleApiError(error as Error);
-      console.error("Mutation error:", errorMessages);
-    },
+  // UseMutation for API request for Creating Dummy Metrics
+  const {
+    createMetricDummy,
+    isPending: isCreatingDummy,
+    error: createDummyError,
+  } = useCreateMetricDummy(async () => {
+    queryClient.invalidateQueries({ queryKey: ["metrics"] });
   });
 
-  /**
-   * * Dummy Metrics
-   * Form Submit Handler for generating dummy metrics.
-   */
+  // * Handlers
   const onDummyDataSubmit = async () => {
     try {
       console.log("Submitting request for metric dummy with count 50");
-      await mutateAsync({ count: 50 }); // Hardcoded count for now
-      console.log("mutateAsync completed successfully");
+      await createMetricDummy({ count: 50 }); // Hardcoded count for now
     } catch (error) {
-      console.error("Form submission error:", error);
+      const errorMessages = handleApiError(error as Error);
+      console.error("Mutation error:", errorMessages);
     }
   };
+
+  const handleAddMetric = () => {
+    setModalOpen(true);
+  };
+
+  const handleSort = (column: string) => {
+    if (sortBy !== column) {
+      // New column: always start with ascending
+      setSortBy(column);
+      setSortOrder("ASC");
+    } else {
+      // Same column: cycle ASC → DESC → NONE
+      if (sortOrder === "ASC") {
+        setSortOrder("DESC");
+      } else if (sortOrder === "DESC") {
+        // Cycle back to default/none (restore backend default)
+        setSortBy(DEFAULT_SORT_BY);
+        setSortOrder(DEFAULT_SORT_ORDER);
+      }
+    }
+    setPage(1); // reset page when sort changes
+  };
+
+  // * Derived State / Computed Values
+  const totalPages = total ? Math.ceil(total / PAGE_SIZE) : 1;
+  const errorMsg = createDummyError?.message || "";
 
   if (isError) {
     return (
@@ -90,17 +107,22 @@ function MetricsPage() {
     <Layout>
       <div className="container mx-auto p-6">
         <h1 className="text-3xl font-bold mb-4">📊 My Metrics</h1>
+
+        <div className="inline-block h-2 mb-4">
+          {errorMsg && <p className="text-red-500 text-xs mb-2">{errorMsg}</p>}
+        </div>
+
         <div className="flex justify-end mb-4">
           <PrimaryButton
             onClick={onDummyDataSubmit}
             ariaLabel="Generate Metric"
             className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
           >
-            Generate Metric
+            {isCreatingDummy ? "Saving..." : "Add"}
           </PrimaryButton>
 
           <PrimaryButton
-            onClick={() => setModalOpen(true)}
+            onClick={handleAddMetric}
             ariaLabel="Create Metric"
             className="mt-4 ml-2"
           >
@@ -114,7 +136,12 @@ function MetricsPage() {
           <MetricEmptyState onOpenModal={() => setModalOpen(true)} />
         ) : (
           <>
-            <MetricTable metrics={metrics || []} />
+            <MetricTable
+              metrics={metrics || []}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={handleSort}
+            />
 
             {/**Pagination Segment */}
             {totalPages > 1 && (
@@ -130,9 +157,12 @@ function MetricsPage() {
           </>
         )}
 
-        <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-          <MetricForm onClose={() => setModalOpen(false)} />
-        </Modal>
+        <MetricForm
+          metricId={null}
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          initialMetric={null}
+        />
       </div>
     </Layout>
   );
