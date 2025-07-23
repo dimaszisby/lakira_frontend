@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
 
 // Components
@@ -10,7 +10,6 @@ import Layout from "@/components/layout/Layout";
 import MetricLogsSection from "@/components/pages/metrics/detail/MetricLogSection";
 import MetricSettingsSection from "@/components/pages/metrics/detail/MetricSettingsSection";
 import MetricHeaderSection from "@/components/pages/metrics/detail/MetricHeaderSection";
-import MetricLogFormModal from "@/components/pages/logs/LogFormModal";
 import { withAuth } from "@/components/hoc/withAuth";
 import SkeletonLoader from "@/components/ui/SekeletonLoader";
 
@@ -21,9 +20,9 @@ import { useMetricDetails } from "@/features/metrics/hooks";
 import { extractMetricCore } from "@/features/metrics/helper";
 
 function MetricDetailPage() {
+  // Params
   const params = useParams();
   const metricId = params?.id as string;
-  const [isLogFormOpen, setLogFormOpen] = useState(false);
 
   const {
     data: metricDetail,
@@ -52,21 +51,13 @@ function MetricDetailPage() {
         /> */}
 
         {/* Metric Card Header */}
-        <MetricHeaderSection metric={metricCore} onEditMetric={() => {}} />
+        <MetricHeaderSection metric={metricCore} />
 
         {/* Metric Insight Section */}
         {/* <MetricInsightSection logs={sortedLogs} /> */}
 
         {/* Logs Section */}
-        <MetricLogsSection
-          metricId={metricId}
-          onAddLog={() => setLogFormOpen(true)}
-        />
-        <MetricLogFormModal
-          metricId={metricId}
-          open={isLogFormOpen}
-          onClose={() => setLogFormOpen(false)}
-        />
+        <MetricLogsSection metricId={metricId} />
 
         {/* Settings Section */}
         {/* TODO: Development stuck here because no strategy yet to how to handle Metric that not have/generated MetricSettings yet */}
