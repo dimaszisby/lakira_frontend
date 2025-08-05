@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { useAtom } from "jotai";
-import { userAtom } from "../../../utils/state/atoms";
+import { userAtom } from "@/src/services/state/atoms";
 import { useRouter } from "next/navigation";
 
 const Header = () => {

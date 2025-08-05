@@ -8,7 +8,7 @@
  * DTOs are often immutable.
  */
 
-import { UserAtom } from "@/state/atoms";
+import { UserAtom } from "@/src/services/state/atoms";
 import {
   createUserSchema,
   loginUserSchema,

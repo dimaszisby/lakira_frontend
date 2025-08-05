@@ -5,9 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtom } from "jotai";
 import { useRouter } from "next/navigation";
-import { userAtom } from "@/utils/state/atoms";
-import { handleApiError } from "@/utils/handleApiError";
-import { registerUser } from "@/utils/interactors/auth.api";
+import { userAtom } from "@/src/services/state/atoms";
+import { handleApiError } from "@/src/services/api/handleApiError";
+import { registerUser } from "@/src/services/api/auth.api";
 import { createUserSchema } from "@/types/api/zod-user.schema";
 import { CreateUserRequestDTO } from "@/src/types/dtos/user.dto";
 

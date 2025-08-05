@@ -2,9 +2,9 @@
 
 import React, { useEffect } from "react";
 import { useAtom } from "jotai";
-import { userAtom, UserAtom } from "@/utils/state/atoms";
+import { userAtom, UserAtom } from "@/src/services/state/atoms";
 import { useRouter } from "next/navigation";
-import { fetchUserProfile } from "@/utils/interactors/auth.api";
+import { fetchUserProfile } from "@/src/services/api/auth.api";
 import { useQueryClient } from "@tanstack/react-query";
 
 /**
