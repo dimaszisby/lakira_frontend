@@ -15,9 +15,9 @@ import { useState } from "react";
 import { List, X } from "phosphor-react";
 import Modal from "@/src/components/ui/Modal"; // ✅ Ensure correct import (folder renamed to "components")
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { logoutUser } from "@/utils/interactors/auth.api";
+import { logoutUser } from "@/src/services/api/auth.api";
 import { useAtom } from "jotai";
-import { userAtom } from "@/utils/state/atoms";
+import { userAtom } from "@/src/services/state/atoms";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 
@@ -32,7 +32,7 @@ import {
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: SquaresFour },
   { name: "Metrics", href: "/metrics", icon: ChartBar },
-  { name: "Category", href: "/category", icon: Folder },
+  { name: "Category", href: "/metric-categories", icon: Folder },
   { name: "Account", href: "/account", icon: UserCircle },
 ];
 
@@ -65,15 +65,31 @@ export default function Sidebar() {
     },
   });
 
+  const mobileTopBar = () => (
+    <div className="lg:hidden flex items-center bg-white p-4 shadow-md fixed top-0 w-full z-50 space-x-4">
+      <button onClick={toggleMobileMenu} aria-label="Toggle Menu">
+        {mobileOpen ? <X size={24} /> : <List size={24} />}
+      </button>
+      <h2 className="text-xl font-bold flex items-center">📊 Lakira</h2>
+    </div>
+  );
+
+  const logoutButton = () => (
+    <div className="mt-auto">
+      <button
+        onClick={() => setLogoutModalOpen(true)}
+        className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition"
+      >
+        <SignOut size={20} className="mr-2" />
+        Sign Out
+      </button>
+    </div>
+  );
+
   return (
     <>
       {/* ✅ Mobile Top Bar */}
-      <div className="lg:hidden flex items-center justify-between bg-white p-4 shadow-md fixed top-0 w-full z-50">
-        <h2 className="text-xl font-bold flex items-center">📊 Lakira</h2>
-        <button onClick={toggleMobileMenu} aria-label="Toggle Menu">
-          {mobileOpen ? <X size={24} /> : <List size={24} />}
-        </button>
-      </div>
+      {mobileTopBar()}
 
       {/* ✅ Desktop Sidebar */}
       <div className="fixed top-4 left-4 bottom-4 w-64 p-6 bg-white shadow-lg z-50 lg:flex flex-col hidden rounded-2xl">
@@ -81,15 +97,7 @@ export default function Sidebar() {
         <NavigationItems pathname={pathname || ""} />
 
         {/* ✅ Logout Button */}
-        <div className="mt-auto">
-          <button
-            onClick={() => setLogoutModalOpen(true)}
-            className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition"
-          >
-            <SignOut size={20} className="mr-2" />
-            Sign Out
-          </button>
-        </div>
+        {logoutButton()}
       </div>
 
       {/* ✅ Mobile Sidebar Drawer */}
@@ -98,7 +106,7 @@ export default function Sidebar() {
           <motion.div
             initial={{ x: -300 }}
             animate={{ x: 0 }}
-            transition={{ type: "spring", stiffness: 100 }}
+            transition={{ type: "fluid", stiffness: 100 }}
             className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg p-6 z-50"
           >
             <button
