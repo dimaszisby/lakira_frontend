@@ -56,7 +56,7 @@ const MetricCategoryDesktopTable = React.memo(
     onDelete,
   }: CategoryTableProps) => {
     return (
-      <Table
+      <Table<MetricCategoryResponseDTO>
         data={categories}
         columns={columns}
         sortBy={sortBy as keyof MetricCategoryResponseDTO}
