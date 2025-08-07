@@ -1,5 +1,3 @@
-// src/component/ui/Table.tsx
-
 import React from "react";
 
 export interface TableColumn<T> {
@@ -53,7 +51,7 @@ const getResponsiveWidthClass = <T,>(
   return classes.join(" ");
 };
 
-export function Table<T>({
+export const Table = <T,>({
   data,
   columns,
   sortBy,
@@ -62,7 +60,7 @@ export function Table<T>({
   rowKey,
   renderRow,
   className = "",
-}: TableProps<T>) {
+}: TableProps<T>) => {
   return (
     <div
       className={`hidden sm:block overflow-x-auto rounded-xl shadow-sm bg-white text-sm text-gray-700 ${className}`}
@@ -120,7 +118,7 @@ export function Table<T>({
             })}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-gray-50 divide-y divide-gray-200 space-y-2">
           {data.length > 0 ? (
             data.map((item) =>
               renderRow ? (
@@ -128,7 +126,7 @@ export function Table<T>({
               ) : (
                 <tr
                   key={rowKey(item)}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-gray-50 transition-colors "
                 >
                   {columns.map((col) => {
                     // Computed Valus
@@ -139,7 +137,7 @@ export function Table<T>({
                     return (
                       <td
                         key={String(col.key)}
-                        className={`${widthClasses} px-4 py-2 border-t ${getAlignClass(
+                        className={`${widthClasses} px-4 py-2 ${getAlignClass(
                           col.align
                         )}`}
                       >
@@ -166,4 +164,10 @@ export function Table<T>({
       </table>
     </div>
   );
-}
+};
+
+Table.displayName = "Table";
+
+// Memoized version for programmatic use (not for generic JSX)
+export const MemoizedTable = React.memo(Table) as typeof Table;
+export default MemoizedTable;
