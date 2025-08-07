@@ -1,58 +1,19 @@
-// File: src/components/pages/metric-categories/MetricCategoryMobileTable.tsx
-
 import React from "react";
-import {
-  SortControllerChips,
-  SortChipsColumns,
-} from "@/components/ui/SortControllerChips";
 import SwipeableCard from "@/components/ui/SwipeableCard";
-import { CategoryTableProps } from "./type";
 import MetricCategoryMobileCard from "./MetricCategoryMobileCard";
+import { CategoryTableProps } from "./type";
 import { MetricCategoryResponseDTO } from "@/src/types/dtos/metric-category.dto";
 
-const columns: SortChipsColumns<MetricCategoryResponseDTO>[] = [
-  {
-    key: "icon",
-    label: "Icon",
-    sortable: false,
-  },
-  {
-    key: "color",
-    label: "Color",
-    sortable: false,
-  },
-  {
-    key: "name",
-    label: "Name",
-    sortable: true,
-  },
-  {
-    key: "metricCount",
-    label: "Metrics",
-    sortable: true,
-  },
-];
-
-const MetricCategoryMobileTable = ({
-  categories,
-  rowKey = (item: MetricCategoryResponseDTO) => item.id,
-  onEdit,
-  onDelete,
-  onSort,
-  sortBy,
-  sortOrder,
-}: CategoryTableProps) => {
-  return (
-    <div>
-      <SortControllerChips
-        sortBy={sortBy as keyof MetricCategoryResponseDTO}
-        sortOrder={sortOrder}
-        onSort={onSort}
-        className="mb-4"
-        columns={columns}
-      />
-
-      <div className="block space-y-4">
+const MetricCategoryMobileTable = React.memo(
+  ({
+    categories,
+    rowKey = (item: MetricCategoryResponseDTO) => item.id,
+    onEdit,
+    onDelete,
+    className = "",
+  }: CategoryTableProps) => {
+    return (
+      <div className={`block space-y-4 ${className}`}>
         {categories.length > 0 ? (
           categories.map((item) => (
             <SwipeableCard
@@ -81,8 +42,10 @@ const MetricCategoryMobileTable = ({
           </p>
         )}
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+MetricCategoryMobileTable.displayName = "MetricCategoryMobileTable";
 
 export default MetricCategoryMobileTable;

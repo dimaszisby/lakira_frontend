@@ -1,90 +1,158 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ReusableFormField from "@/src/components/ui/ReusableFormField";
+import ReusableFormField from "@/components/ui/ReusableFormField";
 
 // types
-import { CreateMetricCategoryRequestDTO } from "@/src/types/dtos/metric-category.dto";
-import { createMetricCategorySchema } from "@/src/types/api/zod-metric-category.schema";
-import { createMetricCategory } from "@/utils/interactors/metric-category.api";
+import {
+  CreateMetricCategoryRequestDTO,
+  MetricCategoryResponseDTO,
+} from "@/src/types/dtos/metric-category.dto";
 
-// TODO 1: Add dynamic form title based on create or update view
-// TODO 2: Add dynamic textfield value if on update view
+import {
+  MetricCategoryFormInput,
+  metricCategoryFormSchema,
+} from "@/src/features/metricCategories/types";
+import {
+  useCreateMetricCategory,
+  useDeleteMetricCategory,
+  useUpdateMetricCategory,
+} from "@/src/features/metricCategories/hooks";
+import Modal from "../../ui/Modal";
+import PrimaryButton from "../../ui/PrimaryButton";
+import { useQueryClient } from "@tanstack/react-query";
+import ErrorMessage from "../../ui/ErrorMessage";
 
-export default function MetricCategoryForm({
-  onClose,
-}: {
+interface MetricCategoryModalProps {
+  open: boolean;
   onClose: () => void;
-}) {
-  const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  categoryId: string | null;
+  initialCategory: MetricCategoryResponseDTO | null;
+}
 
-  // React Hook Form with Zod Validation
+const MetricCategoryForm = ({
+  open,
+  onClose,
+  categoryId,
+  initialCategory,
+}: MetricCategoryModalProps) => {
+  const isEditMode = !!initialCategory;
+  const queryClient = useQueryClient();
+
+  // * Form
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    reset,
+    formState: { errors, isSubmitting, isValid },
+    setValue,
   } = useForm<CreateMetricCategoryRequestDTO>({
-    resolver: zodResolver(createMetricCategorySchema.shape.body),
+    resolver: zodResolver(metricCategoryFormSchema),
     mode: "onChange",
+    defaultValues: isEditMode
+      ? {
+          name: initialCategory?.name,
+          color: initialCategory?.color,
+          icon: initialCategory?.icon,
+        }
+      : {
+          name: "",
+          color: "",
+          icon: "",
+        },
   });
 
-  // UseMutation for API request
-  const { mutateAsync, error: mutationError } = useMutation({
-    mutationFn: createMetricCategory,
-    onSuccess: () => {
-      console.log("Mutation succeeded");
-      queryClient.invalidateQueries({ queryKey: ["categories"] }); // TODO: Ensure query keys is correct
-      onClose();
-    },
-    onError: (error) => {
-      console.error("Mutation error:", error);
-      setIsSubmitting(false);
-    },
+  useEffect(() => {
+    if (open && isEditMode && initialCategory) {
+      setValue("name", initialCategory.name);
+      setValue("color", initialCategory.color);
+      setValue("icon", initialCategory.icon);
+    }
+  }, [open, isEditMode, initialCategory, categoryId, setValue, reset]);
+
+  // * Mutation Hooks
+  const {
+    createMetricCategory,
+    isPending: isCreating,
+    error: createError,
+  } = useCreateMetricCategory(async () => {
+    queryClient.invalidateQueries({ queryKey: ["metricCategories"] });
   });
 
-  // Form Submit Handler
-  const onSubmit = async (
-    data: z.infer<typeof createMetricCategorySchema>["body"]
-  ) => {
-    console.log("onSubmit called with data:", data);
-    setIsSubmitting(true);
+  const {
+    updateMetricCategory,
+    isPending: isUpdating,
+    error: updateError,
+  } = useUpdateMetricCategory(async () => {
+    queryClient.invalidateQueries({ queryKey: ["metricCategories"] });
+  });
+
+  const {
+    deleteMetricCategory,
+    isPending: isDeleting,
+    error: deleteError,
+  } = useDeleteMetricCategory(async () => {
+    queryClient.invalidateQueries({ queryKey: ["metricCategories"] });
+  });
+
+  // * Handlers
+  const onSubmit = async (data: MetricCategoryFormInput) => {
+    if (!isValid) {
+      console.log("Form is not valid, preventing submission.");
+      return;
+    }
+
     try {
-      // Add isPublic field with default value
-      const categoryData = {
-        ...data,
-        isPublic: true, // Setting default value as per schema
-      };
-      console.log("Submitting metric category data:", categoryData);
-      await mutateAsync(categoryData);
-      console.log("mutateAsync completed successfully");
+      if (isEditMode && initialCategory && categoryId) {
+        await updateMetricCategory({ categoryId: categoryId, category: data });
+      } else {
+        await createMetricCategory(data);
+      }
+      reset();
+      onClose();
     } catch (error) {
-      console.error("Form submission error:", error);
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error creating metric log:", error);
     }
   };
 
+  const onDeleteSubmit = async () => {
+    if (!initialCategory) return;
+    try {
+      await deleteMetricCategory(initialCategory.id);
+      reset();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting metric log:", error);
+    }
+  };
+
+  // * Computed Value
+  const errorMsg =
+    createError?.message || updateError?.message || deleteError?.message || "";
+
   return (
-    <div className="bg-white p-6 max-w-lg min-w-96 mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Manage Metric</h2>
+    <Modal isOpen={open} onClose={onClose}>
+      <form
+        className="bg-white p-6 max-w-lg min-w-96 mx-auto"
+        onSubmit={handleSubmit((data) => {
+          if (Object.keys(errors).length > 0) {
+            console.log("Form has errors, preventing submission.");
+            return;
+          }
+          onSubmit(data);
+        })}
+      >
+        <h2 className="text-xl font-semibold mb-4">Manage Category</h2>
 
-      {mutationError && (
-        <div className="text-red-500 mb-4">
-          Error creating metric: {mutationError.message}
-        </div>
-      )}
+        {/* Error Message */}
+        <ErrorMessage message={errorMsg}></ErrorMessage>
 
-      <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
         <ReusableFormField
           label="Name"
           type="text"
           register={register("name")}
           placeholder="i.e Muscle Group Growth"
+          isSubmitting={isSubmitting || isCreating || isUpdating}
         />
 
         <ReusableFormField
@@ -93,24 +161,64 @@ export default function MetricCategoryForm({
           register={register("icon")}
           placeholder="e.g., km, reps, hours"
           error={errors.icon?.message}
+          isSubmitting={isSubmitting || isCreating || isUpdating}
         />
 
         <ReusableFormField
           label="color"
           type="text"
           register={register("color")}
-          placeholder="#000000" //TODO: Create a color picker here
+          placeholder="#000000"
           error={errors.color?.message}
+          isSubmitting={isSubmitting || isCreating || isUpdating}
         />
 
-        <button
-          type="submit"
-          disabled={isSubmitting || !isValid}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition w-full disabled:bg-gray-400"
-        >
-          {isSubmitting ? "Saving..." : "Save Metric"}
-        </button>
+        {/* Buttons */}
+        <div className="flex-row space-y-4">
+          <div className="flex gap-2 mt-6 justify-center items">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 w-full"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+
+            <PrimaryButton
+              type="submit"
+              disabled={isSubmitting || !isValid}
+              className="w-full"
+            >
+              {isSubmitting || isCreating || isUpdating
+                ? "Saving..."
+                : isEditMode
+                ? "Save"
+                : "Add"}
+            </PrimaryButton>
+          </div>
+
+          {/* Delete button (edit mode only) */}
+          {isEditMode && (
+            <>
+              <hr
+                style={{ borderTop: "1px solid lightgrey" }}
+                className="my-4"
+              />
+              <button
+                type="button"
+                className="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-500 w-full"
+                onClick={onDeleteSubmit}
+                disabled={isSubmitting || isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Log"}
+              </button>
+            </>
+          )}
+        </div>
       </form>
-    </div>
+    </Modal>
   );
-}
+};
+
+export default MetricCategoryForm;
