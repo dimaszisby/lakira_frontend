@@ -1,11 +1,11 @@
-import React from "react";
+import { memo } from "react";
 
 export interface TableColumn<T> {
   key: keyof T;
   label: string;
   align?: "left" | "center" | "right";
   width?: string;
-  responsiveWidth?: { sm?: string; md?: string; lg?: string; xl?: string }; // ✅ NEW
+  responsiveWidth?: { sm?: string; md?: string; lg?: string; xl?: string };
   sortable?: boolean;
   renderHeader?: (
     sorted: boolean,
@@ -23,8 +23,9 @@ interface TableProps<T> {
   rowKey: (item: T) => string;
   renderRow?: (item: T) => React.ReactNode;
   className?: string;
-  onEdit?: (item: T) => void; // Developer Note: Will be implemented later do not remove
-  onDelete?: (item: T) => void; // Developer Note: Will be implemented later do not remove
+  onEdit?: (item: T) => void;
+  onDelete?: (item: T) => void;
+  onRowClick?: (item: T) => void; // Not implemented yet
 }
 
 function getAlignClass(align: "left" | "center" | "right" = "left") {
@@ -51,12 +52,27 @@ const getResponsiveWidthClass = <T,>(
   return classes.join(" ");
 };
 
+// util: prevent row-click from firing when clicking controls inside the row
+function isInteractive(el: HTMLElement) {
+  const tag = el.tagName.toLowerCase();
+  return (
+    tag === "button" ||
+    tag === "a" ||
+    tag === "input" ||
+    tag === "select" ||
+    tag === "textarea" ||
+    el.getAttribute("role") === "button" ||
+    el.getAttribute("role") === "link"
+  );
+}
+
 export const Table = <T,>({
   data,
   columns,
   sortBy,
   sortOrder,
   onSort,
+  onRowClick,
   rowKey,
   renderRow,
   className = "",
@@ -126,7 +142,37 @@ export const Table = <T,>({
               ) : (
                 <tr
                   key={rowKey(item)}
-                  className="hover:bg-gray-50 transition-colors "
+                  // only look clickable if handler exists
+                  className={`transition-colors hover:bg-gray-50 ${
+                    onRowClick ? "cursor-pointer" : ""
+                  }`}
+                  // mouse
+                  onClick={(e) => {
+                    if (!onRowClick) return;
+                    const target = e.target as HTMLElement;
+                    // ignore clicks from interactive descendants
+                    if (
+                      isInteractive(target) ||
+                      target.closest(
+                        "button,a,input,select,textarea,[role=button],[role=link]"
+                      )
+                    ) {
+                      return;
+                    }
+                    onRowClick(item);
+                  }}
+                  // keyboard accessibility (Enter/Space)
+                  tabIndex={onRowClick ? 0 : -1}
+                  onKeyDown={(e) => {
+                    if (!onRowClick) return;
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onRowClick(item);
+                    }
+                  }}
+                  // testing hook
+                  data-rowid={rowKey(item)}
+                  aria-label={onRowClick ? "View row details" : undefined}
                 >
                   {columns.map((col) => {
                     // Computed Valus
@@ -140,6 +186,17 @@ export const Table = <T,>({
                         className={`${widthClasses} px-4 py-2 ${getAlignClass(
                           col.align
                         )}`}
+                        onClick={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (
+                            isInteractive(target) ||
+                            target.closest(
+                              "button,a,input,select,textarea,[role=button],[role=link]"
+                            )
+                          ) {
+                            e.stopPropagation();
+                          }
+                        }}
                       >
                         {col.renderCell
                           ? col.renderCell(item)
@@ -169,5 +226,5 @@ export const Table = <T,>({
 Table.displayName = "Table";
 
 // Memoized version for programmatic use (not for generic JSX)
-export const MemoizedTable = React.memo(Table) as typeof Table;
+export const MemoizedTable = memo(Table) as typeof Table;
 export default MemoizedTable;
