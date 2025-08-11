@@ -1,8 +1,8 @@
 import { memo } from "react";
-import { MetricTableProps } from "./type";
-import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
-import SwipeableCard from "../../ui/SwipeableCard";
+import SwipeableCard from "@/components/ui/SwipeableCard";
 import MetricLibraryMobileCard from "./MetricLibraryMobileCard";
+import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
+import { MetricTableProps } from "./type";
 
 const MetricMobileTable = memo(
   ({
@@ -10,6 +10,7 @@ const MetricMobileTable = memo(
     rowKey = (item: MetricPreviewResponseDTO) => item.id,
     onEdit,
     onDelete,
+    onRowClick,
     className = "",
   }: MetricTableProps) => {
     return (
@@ -33,7 +34,7 @@ const MetricMobileTable = memo(
                 },
               ]}
             >
-              <MetricLibraryMobileCard metric={item} />
+              <MetricLibraryMobileCard metric={item} onClick={onRowClick} />
             </SwipeableCard>
           ))
         ) : (

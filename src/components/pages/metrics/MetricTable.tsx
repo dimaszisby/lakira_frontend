@@ -1,7 +1,7 @@
 import { memo } from "react";
 import MetricDesktopTable from "./MetricDesktopTable";
-import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
 import MetricMobileTable from "./MetricMobileTable";
+import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
 import { MetricTableProps } from "./type";
 
 const MetricTable = memo(
@@ -12,6 +12,7 @@ const MetricTable = memo(
     onSort,
     onEdit,
     onDelete,
+    onRowClick,
   }: MetricTableProps) => {
     return (
       <>
@@ -23,6 +24,7 @@ const MetricTable = memo(
           onSort={onSort}
           onEdit={onEdit}
           onDelete={onDelete}
+          onRowClick={onRowClick}
           className="space-y-4"
         />
 

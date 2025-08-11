@@ -11,6 +11,22 @@ const columns: TableColumn<MetricPreviewResponseDTO>[] = [
     width: "w-[50px]",
     responsiveWidth: { md: "w-[60px]" }, // Slightly wider on medium+
     sortable: true,
+    renderCell: (met) => {
+      return (
+        <div
+          className={`flex px-2 py-1 rounded-lg gap-2 ${
+            met.category ? "text-black" : "text-white"
+          }`}
+          style={{
+            backgroundColor: met.category ? met.category.color : "#808080",
+          }}
+          aria-label="Category Chip"
+        >
+          <span>{met.category ? met.category.icon : "🗂️"}</span>
+          <span> {met.category ? met.category.name : "uncategorized"}</span>
+        </div>
+      );
+    },
   },
   {
     key: "name",
@@ -62,6 +78,7 @@ const MetricDesktopTable = memo(
     onSort,
     onEdit,
     onDelete,
+    onRowClick,
   }: MetricTableProps) => {
     return (
       <Table
@@ -73,6 +90,7 @@ const MetricDesktopTable = memo(
         rowKey={(cat) => cat.id}
         onEdit={onEdit}
         onDelete={onDelete}
+        onRowClick={onRowClick}
         // Optionally: custom row component for editing/deleting per row
         // renderRow={(category) => <MetricCategoryTableRow key={category.id} category={category} />}
       />

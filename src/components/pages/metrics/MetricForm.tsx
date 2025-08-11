@@ -28,6 +28,7 @@ import {
 } from "@/src/features/metrics/types";
 import PrimaryButton from "../../ui/PrimaryButton";
 import Modal from "../../ui/Modal";
+import ErrorMessage from "../../ui/ErrorMessage";
 
 // TODO 1: (Question) What's the best way to handle the form title and textfield value dynamically based on whether it's a create or update view based on the industry standard?
 // TODO 1.1: Add dynamic form title based on create or update view
@@ -199,7 +200,7 @@ export const MetricForm: React.FC<MetricModalProps> = ({
   return (
     <Modal isOpen={open} onClose={onClose}>
       <form
-        className="bg-white p-6 max-w-lg min-w-96 mx-auto space-y-8"
+        className="flex flex-col bg-white p-2 sm:p-2 lg:p-6 max-w-lg min-w-96 mx-auto"
         onSubmit={handleSubmit((data) => {
           if (Object.keys(errors).length > 0) {
             console.log("Form has errors, preventing submission.");
@@ -208,58 +209,58 @@ export const MetricForm: React.FC<MetricModalProps> = ({
           onSubmit(data);
         })}
       >
-        <h2 className="text-xl font-semibold mb-4">Manage Metric</h2>
+        <h2 className="text-xl font-semibold mb-2">Manage Metric</h2>
 
-        {/* Error Message */}
-        <div className="inline-block h-2 mb-4">
-          {errorMsg && <p className="text-red-500 text-xs mb-2">{errorMsg}</p>}
-        </div>
-        <ReusableFormField
-          label="Metric Name"
-          type="text"
-          register={register("name", {
-            onChange: (e) => {
-              setDebouncedName(e.target.value);
-            },
-            validate: {
-              /**
-               * Validates if the metric name is unique.
-               * @param {string} value - The metric name.
-               * @returns {string | boolean} - An error message if the name is not unique, true otherwise.
-               */
-              isUnique: (value: string) => {
-                if (metrics.map((metric) => metric.name).includes(value)) {
-                  return "Metric name already exists";
-                }
-                return true;
+        <ErrorMessage message={errorMsg} className="mb-2"></ErrorMessage>
+
+        <div className="flex flex-col gap-8">
+          <ReusableFormField
+            label="Metric Name"
+            type="text"
+            register={register("name", {
+              onChange: (e) => {
+                setDebouncedName(e.target.value);
               },
-            },
-          })}
-          placeholder="e.g., Steps Walked"
-          error={errors.name?.message}
-          isSubmitting={isSubmitting || isCreating || isUpdating}
-        />
+              validate: {
+                /**
+                 * Validates if the metric name is unique.
+                 * @param {string} value - The metric name.
+                 * @returns {string | boolean} - An error message if the name is not unique, true otherwise.
+                 */
+                isUnique: (value: string) => {
+                  if (metrics.map((metric) => metric.name).includes(value)) {
+                    return "Metric name already exists";
+                  }
+                  return true;
+                },
+              },
+            })}
+            placeholder="e.g., Steps Walked"
+            error={errors.name?.message}
+            isSubmitting={isSubmitting || isCreating || isUpdating}
+          />
 
-        <ReusableFormField
-          label="Description"
-          type="text"
-          register={register("description")}
-          placeholder="Optional description"
-          isSubmitting={isSubmitting || isCreating || isUpdating}
-        />
+          <ReusableFormField
+            label="Description"
+            type="text"
+            register={register("description")}
+            placeholder="Optional description"
+            isSubmitting={isSubmitting || isCreating || isUpdating}
+          />
 
-        <ReusableFormField
-          label="Default Unit"
-          type="text"
-          register={register("defaultUnit", {
-            onChange: (e) => {
-              setDebouncedDefaultUnit(e.target.value);
-            },
-          })}
-          placeholder="e.g., km, reps, hours"
-          error={errors.defaultUnit?.message}
-          isSubmitting={isSubmitting || isCreating || isUpdating}
-        />
+          <ReusableFormField
+            label="Default Unit"
+            type="text"
+            register={register("defaultUnit", {
+              onChange: (e) => {
+                setDebouncedDefaultUnit(e.target.value);
+              },
+            })}
+            placeholder="e.g., km, reps, hours"
+            error={errors.defaultUnit?.message}
+            isSubmitting={isSubmitting || isCreating || isUpdating}
+          />
+        </div>
 
         {/* Buttons */}
         <div className="flex-row space-y-4">

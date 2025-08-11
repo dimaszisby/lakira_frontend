@@ -10,6 +10,7 @@ export interface MetricTableProps {
   onSort: (column: string) => void;
   onEdit?: (metric: MetricPreviewResponseDTO) => void;
   onDelete?: (metric: MetricPreviewResponseDTO) => void;
+  onRowClick?: (metric: MetricPreviewResponseDTO) => void;
   rowKey?: (item: MetricPreviewResponseDTO) => string; // Mobile, Optional for SwipeableCard
   className?: string;
 }

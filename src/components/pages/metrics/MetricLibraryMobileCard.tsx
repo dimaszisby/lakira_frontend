@@ -7,6 +7,7 @@ import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
 
 export interface MetricLibraryCardProps {
   metric: MetricPreviewResponseDTO;
+  onClick?: (metric: MetricPreviewResponseDTO) => void;
 }
 
 /**
@@ -45,7 +46,7 @@ CategoryChip.displayName = "CategoryChip";
  * Handles optional data like category and description gracefully.
  */
 const MetricLibraryMobileCard = memo(
-  ({ metric }: MetricLibraryCardProps) => {
+  ({ metric, onClick }: MetricLibraryCardProps) => {
     const router = useRouter();
     const { id, name, defaultUnit, isPublic, category, logCount } = metric;
 
@@ -64,8 +65,9 @@ const MetricLibraryMobileCard = memo(
 
     // * Handler
     const handleCardClick = useCallback(() => {
-      router.push(`/metrics/${id}`);
-    }, [router, id]);
+      if (onClick) return onClick(metric); // prefer parent handler
+      router.push(`/metrics/${id}`); // fallback behaviour
+    }, [onClick, router, id, metric]);
 
     return (
       <div
@@ -136,7 +138,8 @@ const MetricLibraryMobileCard = memo(
       </div>
     );
   },
-  (prev, next) => prev.metric.id === next.metric.id
+  (prev, next) =>
+    prev.metric.id === next.metric.id && prev.onClick === next.onClick
 );
 
 MetricLibraryMobileCard.displayName = "MetricLibraryCard";
