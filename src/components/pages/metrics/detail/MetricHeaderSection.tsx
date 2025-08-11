@@ -1,10 +1,9 @@
 // MetricHeaderSection.tsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 // components
-import { DataLabel } from "@/src/components/ui/DataLabel";
-import OverlineLabel from "@/src/components/ui/OverlineLabel";
+import DataLabel from "@/src/components/ui/DataLabel";
 import { PencilSimple } from "phosphor-react";
 
 // types
@@ -24,9 +23,7 @@ interface MetricHeaderSectionProps {
   metric: MetricCore;
 }
 
-const MetricHeaderSection: React.FC<MetricHeaderSectionProps> = ({
-  metric,
-}) => {
+const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
   // TODO - Developer Note: Metric Category component is WIP
 
   // States
@@ -57,42 +54,48 @@ const MetricHeaderSection: React.FC<MetricHeaderSectionProps> = ({
         </button>
 
         {/* Metric Title */}
-        <div className="mb-4">
-          <OverlineLabel text="Metric Name" />
-          <div className="font-bold text-xl text-gray-800">{metric?.name}</div>
-        </div>
+        <DataLabel
+          title="Metric Name"
+          value={safeLabel(metric?.defaultUnit, "Not Set")}
+          valueStyle="xl"
+          className="mb-4"
+        />
 
         {/* Metric Unit, Category, Visibility */}
-        <div className="flex flex-wrap gap-8 mb-4">
+        <div className="flex sm:flex-wrap lg:flex-row gap-8 items-start content-start justify-start mb-4">
           <DataLabel
-            label="Default Unit"
+            title="Default Unit"
             value={safeLabel(metric?.defaultUnit, "Not Set")}
           />
 
-          <div>
-            <OverlineLabel text="Category" />
-          </div>
-          <div>
-            <OverlineLabel text="Visibility" />
-            <div
-              className={metric.isPublic ? "text-green-600" : "text-red-600"}
-            >
-              {metric.isPublic ? "Public" : "Private"}
-            </div>
-          </div>
+          <DataLabel
+            title="Category"
+            value={safeLabel(metric?.categoryId, "Not Set")}
+            renderValue={
+              <div className={`block bg-gray-200 px-3 py-1  rounded-xl`}>
+                {metric.categoryId ? `${metric.categoryId}` : "No Category"}
+              </div>
+            }
+          />
+
+          <DataLabel
+            title="Visibility"
+            value={safeLabel(metric?.isPublic, "Not Set")}
+            renderValue={
+              <div
+                className={metric.isPublic ? "text-green-600" : "text-red-600"}
+              >
+                {metric.isPublic ? "Public" : "Private"}
+              </div>
+            }
+          />
         </div>
 
-        {/* Description */}
-        <div className="mb-3">
-          <OverlineLabel text="Description" />
-          <div className="text-gray-600">
-            {metric.description || (
-              <span className="italic text-gray-400">
-                No description provided.
-              </span>
-            )}
-          </div>
-        </div>
+        <DataLabel
+          title="Description"
+          value={safeLabel(metric?.description, "Not Description Provided")}
+          valueStyle="sm"
+        />
 
         {/* Created/Updated At */}
         <div className="flex gap-6 text-xs text-gray-400 mt-3">

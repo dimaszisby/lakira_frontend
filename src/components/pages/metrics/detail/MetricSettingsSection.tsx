@@ -1,4 +1,4 @@
-import { DataLabel } from "@/src/components/ui/DataLabel";
+import DataLabel from "@/src/components/ui/DataLabel";
 import SectionCard from "@/src/components/ui/SectionCard";
 import SubsectionCard from "@/src/components/ui/SubsectionCard";
 import { PencilSimple } from "phosphor-react";
@@ -35,19 +35,19 @@ const MetricSettingsSection: React.FC<{
           <SubsectionCard title="Goal Settings">
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <DataLabel
-                label="Goal Type"
+                title="Goal Type"
                 value={safeLabel(settings?.goalType, "Not Set")}
               />
               <DataLabel
-                label="Goal Value"
+                title="Goal Value"
                 value={safeLabel(settings?.goalValue, "Not Set")}
               />
               <DataLabel
-                label="Start Date"
+                title="Start Date"
                 value={safeLabel(formatDate(settings?.startDate), "Not Set")}
               />
               <DataLabel
-                label="Deadline Date"
+                title="Deadline Date"
                 value={safeLabel(formatDate(settings?.deadlineDate), "Not Set")}
               />
             </div>
@@ -57,11 +57,11 @@ const MetricSettingsSection: React.FC<{
           <SubsectionCard title="Alert Settings">
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <DataLabel
-                label="Warn"
+                title="Warn"
                 value={safeLabel(settings?.alertThresholds)}
               />
               <DataLabel
-                label="Alert"
+                title="Alert"
                 value={safeLabel(settings?.alertEnabled)}
               />
             </div>
@@ -72,19 +72,19 @@ const MetricSettingsSection: React.FC<{
         <SubsectionCard title="Display Options">
           <div className="grid grid-flow-col gap-x-4 gap-y-2 wrap">
             <DataLabel
-              label="Show on Dashboard"
+              title="Show on Dashboard"
               value={safeLabel(settings?.displayOptions?.showOnDashboard)}
             />
             <DataLabel
-              label="Priortiy"
+              title="Priortiy"
               value={safeLabel(settings?.displayOptions?.priority)}
             />
             <DataLabel
-              label="Chart Type"
+              title="Chart Type"
               value={safeLabel(settings?.displayOptions?.chartType, "Default")}
             />
             <DataLabel
-              label="Color"
+              title="Color"
               value={safeLabel(settings?.displayOptions?.color, "Default")}
             />
           </div>

@@ -6,7 +6,6 @@ import React, { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 // components
-import EmptyStateCard from "@/src/components/ui/EmptyStateCard";
 import PrimaryButton from "@/src/components/ui/PrimaryButton";
 import SectionCard from "@/src/components/ui/SectionCard";
 import SkeletonLoader from "@/src/components/ui/SekeletonLoader";
@@ -18,6 +17,7 @@ import MetricLogFormModal from "../../logs/LogFormModal";
 import useMetricLogs from "@/src/hooks/useMetricLogs";
 import { useCreateMetricLogDummy } from "@/src/features/metricLogs/hooks";
 import { MetricLogResponseDTO } from "@/src/types/dtos/metric-log.dto";
+import EmptyDataIndicator from "@/src/components/ui/EmptyDataIndicator";
 
 const PAGE_SIZE = 20;
 
@@ -123,9 +123,10 @@ const MetricLogsSection: React.FC<MetricLogSectionProps> = ({ metricId }) => {
           {isLoading ? (
             <SkeletonLoader count={10} className="h-10" />
           ) : logs.length === 0 ? (
-            <EmptyStateCard
-              titleText="Your log is Empty"
-              descriptionText="Your log is Empty"
+            <EmptyDataIndicator
+              title="No Data Available"
+              description="You haven't created any data yet."
+              tooltip="Create your first data"
             />
           ) : (
             <>
