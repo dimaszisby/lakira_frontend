@@ -56,7 +56,7 @@ const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
         {/* Metric Title */}
         <DataLabel
           title="Metric Name"
-          value={safeLabel(metric?.defaultUnit, "Not Set")}
+          value={safeLabel(metric?.name, "Not Set")}
           valueStyle="xl"
           className="mb-4"
         />

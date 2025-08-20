@@ -44,6 +44,6 @@ const MetricTable = memo(
   }
 );
 
-MetricTable.displayName = "MetricCategoryTable";
+MetricTable.displayName = "MetricTable";
 
 export default MetricTable;

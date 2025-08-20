@@ -2,7 +2,9 @@ import { memo } from "react";
 import { Table, TableColumn } from "@/components/ui/Table";
 import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
 import { MetricTableProps } from "./type";
+import { SERVER_SORTABLE_COLUMNS } from "@/src/features/metrics/sort";
 
+const canSort = new Set<string>(SERVER_SORTABLE_COLUMNS);
 const columns: TableColumn<MetricPreviewResponseDTO>[] = [
   {
     key: "category",
@@ -34,13 +36,13 @@ const columns: TableColumn<MetricPreviewResponseDTO>[] = [
     align: "center",
     width: "w-[60px]",
     responsiveWidth: { md: "w-[80px]" },
-    sortable: true,
+    sortable: canSort.has("name"),
   },
   {
     key: "description",
     label: "DESCRIPTION",
     align: "left",
-    sortable: true,
+    sortable: false,
     width: "w-[140px]",
     responsiveWidth: { md: "w-1/3" },
   },
@@ -50,7 +52,7 @@ const columns: TableColumn<MetricPreviewResponseDTO>[] = [
     align: "center",
     width: "w-[70px]",
     responsiveWidth: { md: "w-[100px]" },
-    sortable: true,
+    sortable: canSort.has("defaultUnit"),
   },
   {
     key: "isPublic",
@@ -58,7 +60,7 @@ const columns: TableColumn<MetricPreviewResponseDTO>[] = [
     align: "center",
     width: "w-[70px]",
     responsiveWidth: { md: "w-[100px]" },
-    sortable: true,
+    sortable: canSort.has("isPublic"),
   },
   {
     key: "logCount",
@@ -66,7 +68,7 @@ const columns: TableColumn<MetricPreviewResponseDTO>[] = [
     align: "center",
     width: "w-[70px]",
     responsiveWidth: { md: "w-[100px]" },
-    sortable: true,
+    sortable: canSort.has("logCount"),
   },
 ];
 
@@ -86,7 +88,7 @@ const MetricDesktopTable = memo(
         columns={columns}
         sortBy={sortBy as keyof MetricPreviewResponseDTO}
         sortOrder={sortOrder}
-        onSort={(col) => onSort(String(col))}
+        onSort={onSort} // Dev Note: recently changed
         rowKey={(cat) => cat.id}
         onEdit={onEdit}
         onDelete={onDelete}

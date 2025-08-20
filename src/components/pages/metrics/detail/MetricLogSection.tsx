@@ -56,7 +56,7 @@ const MetricLogsSection: React.FC<MetricLogSectionProps> = ({ metricId }) => {
   const onDummyDataSubmit = async () => {
     try {
       await createMetricLogDummy({
-        count: 50,
+        count: 5,
         metricId: metricId,
       });
       // queryClient.invalidateQueries({
