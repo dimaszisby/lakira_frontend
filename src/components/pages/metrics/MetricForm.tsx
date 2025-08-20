@@ -49,7 +49,6 @@ export const MetricForm: React.FC<MetricModalProps> = ({
     handleSubmit,
     reset,
     formState: { errors, isSubmitting, isValid },
-    setValue,
     setError,
     clearErrors,
     watch,
@@ -59,19 +58,11 @@ export const MetricForm: React.FC<MetricModalProps> = ({
     defaultValues: makeDefaults(initialMetric),
   });
 
-  // --- NEW: rehydrate on open/change with a stable key
+  // Rehydrate -> open/change with a stable key
   const formKey = open ? initialMetric?.id ?? "create" : "closed";
   const prevKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // if (open && isEditMode && initialMetric) {
-    //   setValue("categoryId", initialMetric.categoryId ?? undefined);
-    //   setValue("originalMetricId", initialMetric.originalMetricId ?? undefined);
-    //   setValue("name", initialMetric.name ?? "");
-    //   setValue("description", initialMetric.description ?? "");
-    //   setValue("defaultUnit", initialMetric.defaultUnit ?? "");
-    //   setValue("isPublic", initialMetric.isPublic ?? false);
-    // }
     if (!open) return;
     // only run when switching between "create" and a specific metric (or between metrics)
     if (prevKeyRef.current === formKey) return;
@@ -188,16 +179,6 @@ export const MetricForm: React.FC<MetricModalProps> = ({
       console.error("Error deleting metric log:", error);
     }
   };
-
-  // Inline Error Message for API Errors
-  // This will be displayed if the API call fails
-  // const safeErrorMessage = useMemo(() => {
-  //   if (!mutationError) return null;
-  //   return (
-  //     handleApiError(mutationError as Error)[0] ||
-  //     "An unexpected error occurred."
-  //   );
-  // }, [mutationError]);
 
   const errorMsg =
     createError?.message || updateError?.message || deleteError?.message || "";
