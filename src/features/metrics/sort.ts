@@ -1,6 +1,8 @@
 import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
 import { CursorPage, SortParam } from "@/src/types/generics/CursorPage";
 
+// * =================== Traditional - Deprecated ===================
+
 export const SERVER_SORTABLE_COLUMNS = [
   "createdAt",
   "updatedAt",

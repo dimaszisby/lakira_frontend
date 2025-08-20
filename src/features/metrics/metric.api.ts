@@ -2,7 +2,7 @@ import {
   MetricResponseDTO,
   GenerateDummyMetricsRequestDTO,
   UserMetricDetailResponseDTO,
-  UpdateMetricRequestDTO, // Import the new DTO
+  UpdateMetricRequestDTO,
 } from "@/types/dtos/metric.dto";
 import { CreateMetricRequestDTO } from "@/types/dtos/metric.dto";
 import ApiResponse, { unwrap } from "@/types/generics/ApiResponse";
@@ -19,6 +19,7 @@ import {
   MetricSortViaCursor,
 } from "./sort";
 
+// TODO: Generic Function
 export type ListMetricParams = {
   limit?: number; // default 20
   sort?: MetricSortViaCursor;
@@ -28,11 +29,13 @@ export type ListMetricParams = {
   includeTotal?: boolean;
 };
 
+// TODO: Shared
 type RequestOpts = {
   signal?: AbortSignal;
 };
 
 /** Build query string without undefined/null and with stable ordering */
+// TODO: Shared Function
 function buildQuery(params: Record<string, unknown>): string {
   const qs = new URLSearchParams();
   Object.keys(params)
