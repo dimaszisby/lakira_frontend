@@ -1,11 +1,10 @@
-// hooks/useMetrics.ts
-
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  MetricResponseDTO,
   PaginatedMetricListResponseDTO,
+  UpdateMetricRequestDTO,
   UserMetricDetailResponseDTO,
 } from "@/types/dtos/metric.dto";
-
 import {
   createMetric,
   createMetricDummy,
@@ -13,25 +12,27 @@ import {
   getMetricLibraryList,
   getUserMetricDetails,
   updateMetric,
-} from "@/src/services/api/metric.api";
+} from "@/src/features/metrics/metric.api";
+import { metricsKeys } from "./keys";
+import { IncludeKey, ListOptions, MetricsListParams } from "./types";
 
 // * =========== Query Hooks ===========
 
 const useMetricsLibrary = (
-  page: number,
-  limit: number = 20,
-  sortBy: string = "createdAt",
-  sortOrder: "ASC" | "DESC" | null = "DESC"
+  params: MetricsListParams,
+  opts: ListOptions = {}
 ) => {
   const { data, isLoading, isError } = useQuery<
     PaginatedMetricListResponseDTO | undefined,
     Error
   >({
-    queryKey: ["metrics", page, limit, sortBy, sortOrder],
-    queryFn: () => getMetricLibraryList({ page, limit, sortBy, sortOrder }),
+    queryKey: metricsKeys.list(params),
+    queryFn: () => getMetricLibraryList(params),
     placeholderData: (
       previousData: PaginatedMetricListResponseDTO | undefined
     ) => previousData, // for smooth pagination UX
+    enabled: opts.enabled ?? true,
+    staleTime: opts.staleTime ?? 15_000,
   });
 
   const metrics = data?.metrics ?? [];
@@ -45,14 +46,14 @@ const useMetricsLibrary = (
   };
 };
 
-function useMetricDetails(metricId: string, includes: string[] = []) {
-  // Parameter `includes` is an array of strings to include in the API request
-  const includeParam =
-    includes.length > 0 ? `?include=${includes.join(",")}` : "";
-
+function useMetricDetails(
+  metricId: string,
+  includes: IncludeKey[] = [],
+  logsLimit?: number
+) {
   return useQuery<UserMetricDetailResponseDTO, Error>({
-    queryKey: ["metricDetail", metricId, ...includes],
-    queryFn: () => getUserMetricDetails(metricId, includeParam),
+    queryKey: metricsKeys.detail(metricId, includes, logsLimit),
+    queryFn: () => getUserMetricDetails(metricId, { includes, logsLimit }),
     enabled: !!metricId,
   });
 }
@@ -60,82 +61,105 @@ function useMetricDetails(metricId: string, includes: string[] = []) {
 // * =========== Mutation Hooks ===========
 
 const useCreateMetric = (
-  onSuccess?: () => void,
+  onSuccess?: (created: MetricResponseDTO) => void,
   onError?: (error: Error) => void
 ) => {
+  const qc = useQueryClient();
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
     mutationFn: createMetric,
-    onSuccess,
+    onSuccess: (created) => {
+      //  Invalidate lists (name/category/logCount may affect sort/filter)
+      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+
+      // Optional: optimistic stitch into the *current* first page if you want:
+      // qc.setQueryData(metricsKeys.list({ page: 1, limit: 20, sortBy: "createdAt", sortOrder: "DESC" }), (old: any) => ...);
+
+      onSuccess?.(created);
+    },
     onError,
   });
 
-  return {
-    createMetric: mutateAsync,
-    onSuccess,
-    onError,
-    isError,
-    isSuccess,
-    error,
-    isPending,
-  };
+  return { createMetric: mutateAsync, isError, isSuccess, error, isPending };
+};
+
+type UpdateMetricVars = {
+  metricId: string;
+  metric: UpdateMetricRequestDTO;
 };
 
 const useUpdateMetric = (
-  onSuccess?: () => void,
+  onSuccess?: (updated: MetricResponseDTO) => void,
   onError?: (error: Error) => void
 ) => {
-  const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
-    mutationFn: updateMetric,
-    onSuccess,
+  const qc = useQueryClient();
+  const { mutateAsync, isError, isSuccess, error, isPending } = useMutation<
+    MetricResponseDTO,
+    Error,
+    UpdateMetricVars
+  >({
+    mutationFn: updateMetric, // variables: { metricId, metric }
+    onSuccess: (updated, vars: { metricId: string }) => {
+      // Invalidate for this id
+      qc.invalidateQueries({
+        queryKey: metricsKeys.detail(vars.metricId),
+        exact: false,
+      });
+
+      //  Invalidate lists (name/category/logCount may affect sort/filter)
+      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+
+      // Optional: patch currently cached detail to avoid a flicker:
+      // qc.setQueryData(metricsKeys.detail(vars.metricId), (old: any) => merge(old, updated));
+
+      onSuccess?.(updated);
+    },
     onError,
   });
 
-  return {
-    updateMetric: mutateAsync,
-    onSuccess,
-    onError,
-    isError,
-    isSuccess,
-    error,
-    isPending,
-  };
+  return { updateMetric: mutateAsync, isError, isSuccess, error, isPending };
 };
 
 const useDeleteMetric = (
-  onSuccess?: () => void,
+  onSuccess?: (deletedId: string) => void,
   onError?: (error: Error) => void
 ) => {
+  const qc = useQueryClient();
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
-    mutationFn: deleteMetric,
-    onSuccess,
+    mutationFn: deleteMetric, // variables: metricId
+    onSuccess: (_res, metricId: string) => {
+      // Invalidate for this id
+      qc.removeQueries({
+        queryKey: metricsKeys.detail(metricId),
+        exact: false,
+      });
+
+      // Invalidate all lists (name/category/logCount may affect sort/filter)
+      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+
+      onSuccess?.(metricId);
+    },
     onError,
   });
 
-  return {
-    deleteMetric: mutateAsync,
-    onSuccess,
-    onError,
-    isError,
-    isSuccess,
-    error,
-    isPending,
-  };
+  return { deleteMetric: mutateAsync, isError, isSuccess, error, isPending };
 };
 
 const useCreateMetricDummy = (
   onSuccess?: () => void,
   onError?: (error: Error) => void
 ) => {
+  const qc = useQueryClient();
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
     mutationFn: createMetricDummy,
-    onSuccess,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+      onSuccess?.();
+    },
     onError,
   });
 
   return {
     createMetricDummy: mutateAsync,
-    onSuccess,
-    onError,
     isError,
     isSuccess,
     error,
