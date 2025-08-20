@@ -1,11 +1,13 @@
+// utils/auth.ts
+
 import api from "./api";
-import ApiResponse from "@/types/generics/ApiResponse.js";
+import ApiResponse from "@/types/generics/ApiResponse";
 import { handleApiError } from "./handleApiError";
 import {
-  LoginRequestData,
-  RegisterUserData,
-  AuthResponse,
-} from "../types/auth.type.js";
+  CreateUserRequestDTO,
+  LoginRequestDTO,
+  AuthResponseDTO,
+} from "@/types/dtos/user.dto";
 import { UserAtom } from "../state/atoms.js";
 
 /**
@@ -14,15 +16,20 @@ import { UserAtom } from "../state/atoms.js";
  * @returns An API response containing a token and user data.
  */
 export const registerUser = async (
-  userData: RegisterUserData
-): Promise<ApiResponse<AuthResponse>> => {
+  userData: CreateUserRequestDTO
+): Promise<AuthResponseDTO> => {
   try {
-    const response = await api.post<ApiResponse<AuthResponse>>(
+    const response = await api.post<ApiResponse<AuthResponseDTO>>(
       "/auth/register",
       userData
     );
     console.log("registerUser Triggered");
-    return response.data;
+
+    if (!response.data?.data) {
+      throw new Error("Invalid register response"); // ✅ Prevent undefined responses
+    }
+
+    return response.data.data;
   } catch (error) {
     console.error("API Error in registerUser:", error);
     throw new Error(handleApiError(error).join(", "));
@@ -34,15 +41,19 @@ export const registerUser = async (
  * @returns An API response containing a token and user data.
  */
 export const loginUser = async (
-  credentials: LoginRequestData
-): Promise<ApiResponse<AuthResponse>> => {
+  credentials: LoginRequestDTO
+): Promise<AuthResponseDTO> => {
   try {
-    const response = await api.post<ApiResponse<AuthResponse>>(
+    const response = await api.post<ApiResponse<AuthResponseDTO>>(
       "/auth/login",
       credentials
     );
     console.log("loginUser Triggered");
-    return response.data;
+    if (!response.data?.data) {
+      throw new Error("Invalid login response"); // ✅ Prevent undefined responses
+    }
+
+    return response.data.data;
   } catch (error) {
     console.error("API Error in loginUser:", error);
     throw new Error(handleApiError(error).join(", "));
@@ -57,12 +68,7 @@ export const fetchUserProfile = async (): Promise<UserAtom | null> => {
   try {
     const response = await api.get<ApiResponse<UserAtom>>("/auth/profile");
 
-    // If response is successful and has user data, return it
-    if (response.data?.data) {
-      return response.data.data;
-    }
-
-    return null; // ✅ Ensure it returns `null` instead of undefined or throwing an error
+    return response.data?.data || null; // returns `null` instead of undefined or throwing an error
   } catch (error) {
     console.error("API Error in fetchUserProfile:", error);
     return null; // ✅ Always return `null` when an error occurs
@@ -80,6 +86,7 @@ export const logoutUser = async (): Promise<
     const response = await api.post<ApiResponse<{ message: string }>>(
       "/auth/logout"
     );
+    localStorage.removeItem("token");
     return response.data;
   } catch (error) {
     console.error("API Error in logoutUser:", error);

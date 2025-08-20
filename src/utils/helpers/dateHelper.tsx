@@ -20,6 +20,13 @@ export const isValidDate = (date: unknown) => {
 export const formatDate = (date?: string | Date | null, withTime = false) => {
   if (!date) return "-";
   const d = typeof date === "string" ? parseISO(date) : date;
-  if (!(d instanceof Date) || isNaN(d.getTime())) return "-";
+  if (!(d instanceof Date) || isNaN(d.getTime())) return "No Date";
   return withTime ? format(d, "d MMMM yyyy HH:mm") : format(d, "d MMM yyyy");
 };
+
+export function getNowLocalDateTime() {
+  const now = new Date();
+  const tzOffset = now.getTimezoneOffset() * 60000;
+  const localISO = new Date(now - tzOffset).toISOString().slice(0, 16);
+  return localISO;
+}

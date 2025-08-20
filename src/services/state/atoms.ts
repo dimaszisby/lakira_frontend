@@ -7,6 +7,7 @@ export interface UserAtom {
   username: string;
   email: string;
   isPublicProfile: boolean;
+  role: "admin" | "user";
   token?: string;
 }
 

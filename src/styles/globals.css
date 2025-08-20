@@ -15,7 +15,7 @@
 
   /* * Primary Colors */
   /* 🌸 Primary Colors */
-  --primary-sakura-100: #f4c3cd;
+  --primary-sakura-100: hsl(348, 69%, 86%);
   --primary-sakura-500: #e897a3;
   --primary-sakura-700: #c76576;
 
@@ -45,15 +45,15 @@
   /* 🟡 Accent Colors */
   --accent-vividcoral-100: #f2a5a5;
   --accent-vividcoral-500: #e26d6d;
-  --accent-vividcoral-700: #b94f4f;
+  --accent-vividcoral-700: #030202;
 
-  --accent-goldenyellow-100: #F2DEAA;
-  --accent-goldenyellow-500: #E8C76F;
-  --accent-goldenyellow-700: #C09B43;
+  --accent-goldenyellow-100: #f2deaa;
+  --accent-goldenyellow-500: #e8c76f;
+  --accent-goldenyellow-700: #c09b43;
 
-  --accent-softlavender-100: #D8C2EE;
-  --accent-softlavender-500: #B690D7;
-  --accent-softlavender-700: #8C6AAD;
+  --accent-softlavender-100: #d8c2ee;
+  --accent-softlavender-500: #b690d7;
+  --accent-softlavender-700: #8c6aad;
 
   /* * Info Colors */
   /* 🟡 Info Colors */
@@ -156,6 +156,20 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* globals.css */
+@layer base {
+  /* Hide native clear ('x') button in Chromium/WebKit browsers */
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+  /* Hide native clear in Firefox */
+  input[type="search"]::-moz-search-clear {
+    display: none;
+  }
 }
 
 @layer components {
