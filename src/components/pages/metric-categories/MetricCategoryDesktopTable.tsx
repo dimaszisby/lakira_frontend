@@ -44,6 +44,22 @@ const columns: TableColumn<MetricCategoryResponseDTO>[] = [
     responsiveWidth: { md: "w-[100px]" },
     sortable: true,
   },
+  {
+    key: "updatedAt",
+    label: "UPDATED",
+    align: "left",
+    sortable: true,
+    width: "w-[160px]",
+    renderCell: (cat) => new Date(cat.updatedAt).toLocaleString(),
+  },
+  {
+    key: "createdAt",
+    label: "CREATED",
+    align: "left",
+    sortable: true,
+    width: "w-[160px]",
+    renderCell: (cat) => new Date(cat.createdAt).toLocaleString(),
+  },
 ];
 
 const MetricCategoryDesktopTable = React.memo(
@@ -54,6 +70,7 @@ const MetricCategoryDesktopTable = React.memo(
     onSort,
     onEdit,
     onDelete,
+    onRowClick,
   }: CategoryTableProps) => {
     return (
       <Table<MetricCategoryResponseDTO>
@@ -65,6 +82,7 @@ const MetricCategoryDesktopTable = React.memo(
         rowKey={(cat) => cat.id}
         onEdit={onEdit}
         onDelete={onDelete}
+        onRowClick={onRowClick}
         // Optionally: custom row component for editing/deleting per row
         // renderRow={(category) => <MetricCategoryTableRow key={category.id} category={category} />}
       />

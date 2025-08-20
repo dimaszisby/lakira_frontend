@@ -10,6 +10,7 @@ const MetricCategoryMobileTable = React.memo(
     rowKey = (item: MetricCategoryResponseDTO) => item.id,
     onEdit,
     onDelete,
+    onRowClick,
     className = "",
   }: CategoryTableProps) => {
     return (
@@ -33,7 +34,7 @@ const MetricCategoryMobileTable = React.memo(
                 },
               ]}
             >
-              <MetricCategoryMobileCard category={item} />
+              <MetricCategoryMobileCard category={item} onClick={onRowClick} />
             </SwipeableCard>
           ))
         ) : (

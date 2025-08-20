@@ -12,6 +12,7 @@ const MetricCategoryTable = React.memo(
     onSort,
     onEdit,
     onDelete,
+    onRowClick,
   }: CategoryTableProps) => {
     return (
       <>
@@ -23,6 +24,7 @@ const MetricCategoryTable = React.memo(
           onSort={onSort}
           onEdit={onEdit}
           onDelete={onDelete}
+          onRowClick={onRowClick}
           className="space-y-4"
         />
 
