@@ -11,7 +11,22 @@ import { handleApiError } from "@/src/services/api/handleApiError";
 import api from "@/src/services/api/api";
 import { IncludeKey, MetricsListParams } from "./types";
 import { normalizeIncludes } from "./helper";
-import { DEFAULT_METRIC_SORT, METRICS_PAGE_SIZE } from "./sort";
+import {
+  DEFAULT_METRIC_SORT,
+  MetricCursorPage,
+  MetricFilterViaCursor,
+  METRICS_PAGE_SIZE,
+  MetricSortViaCursor,
+} from "./sort";
+
+export type ListMetricParams = {
+  limit?: number; // default 20
+  sort?: MetricSortViaCursor;
+  q?: string;
+  filter?: MetricFilterViaCursor;
+  after?: string; // cursor
+  includeTotal?: boolean;
+};
 
 type RequestOpts = {
   signal?: AbortSignal;
@@ -105,6 +120,34 @@ export async function getMetricLibraryList(
   );
 
   return unwrap(response);
+}
+
+export async function getMetricLibraryViaCursor({
+  limit = 20,
+  sort = "-createdAt",
+  q,
+  filter,
+  after,
+  includeTotal = false,
+}: ListMetricParams): Promise<MetricCursorPage> {
+  const search = new URLSearchParams();
+
+  search.set("limit", String(limit));
+  search.set("sort", sort);
+
+  if (q?.trim()) search.set("q", q.trim());
+  if (filter?.name?.trim()) search.set("filter[name]", filter.name.trim());
+  if (after) search.set("after", after);
+  if (includeTotal) search.set("includeTotal", "true");
+
+  const { data } = await api.get<ApiResponse<MetricCursorPage>>(
+    `/metrics?${search.toString()}`
+  );
+
+  if (data.status !== "success" || !data.data) {
+    throw new Error(data.message || "Failed to fetch metrics.");
+  }
+  return data.data;
 }
 
 /**

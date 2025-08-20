@@ -1,3 +1,6 @@
+import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
+import { CursorPage, SortParam } from "@/src/types/generics/CursorPage";
+
 export const SERVER_SORTABLE_COLUMNS = [
   "createdAt",
   "updatedAt",
@@ -51,3 +54,34 @@ export function sortFromSearchParams(
     so === "ASC" || so === "DESC" ? so : fallback.sortOrder;
   return { sortBy, sortOrder };
 }
+
+// * =================== CURSOR ===================
+
+export type MetricSortParamViaCursor =
+  | "createdAt"
+  | "-createdAt"
+  | "updatedAt"
+  | "-updatedAt"
+  | "name"
+  | "-name"
+  | "logCount"
+  | "-logCount";
+
+/** Only the keys MetricCategory can sort by */
+export type MetricSortableKeyViaCursor =
+  | "createdAt"
+  | "updatedAt"
+  | "name"
+  | "logCount";
+
+/** Optional: strong typing for your filter block */
+export type MetricFilterViaCursor = {
+  name?: string;
+};
+
+export type MetricSortViaCursor = SortParam<MetricSortParamViaCursor>;
+export type MetricCursorPage = CursorPage<
+  MetricPreviewResponseDTO,
+  MetricSortableKeyViaCursor,
+  MetricFilterViaCursor
+>;
