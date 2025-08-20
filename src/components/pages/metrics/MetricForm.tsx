@@ -1,21 +1,11 @@
-// components/pages/metrics/MetricForm.tsx
-
 "use client";
 
-// libraries
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "react-use";
-import { useQueryClient } from "@tanstack/react-query";
-
-// types
 import { MetricResponseDTO } from "@/src/types/dtos/metric.dto";
-
-// components
 import ReusableFormField from "@/src/components/ui/ReusableFormField";
-
-// hooks
 import {
   useCreateMetric,
   useDeleteMetric,
@@ -30,10 +20,6 @@ import PrimaryButton from "../../ui/PrimaryButton";
 import Modal from "../../ui/Modal";
 import ErrorMessage from "../../ui/ErrorMessage";
 
-// TODO 1: (Question) What's the best way to handle the form title and textfield value dynamically based on whether it's a create or update view based on the industry standard?
-// TODO 1.1: Add dynamic form title based on create or update view
-// TODO 1.2: Add dynamic textfield value if on update view
-
 interface MetricModalProps {
   open: boolean;
   onClose: () => void;
@@ -41,117 +27,136 @@ interface MetricModalProps {
   initialMetric?: MetricResponseDTO | null;
 }
 
-/**
- * MetricForm Component
- *
- * This component provides a form for creating new metrics.
- */
 export const MetricForm: React.FC<MetricModalProps> = ({
   open,
   onClose,
   metricId,
   initialMetric,
 }) => {
+  const makeDefaults = (m?: MetricResponseDTO | null): MetricFormInputs => ({
+    categoryId: m?.categoryId ?? undefined,
+    originalMetricId: m?.originalMetricId ?? undefined,
+    name: m?.name ?? "",
+    description: m?.description ?? "",
+    defaultUnit: m?.defaultUnit ?? "",
+    isPublic: m?.isPublic ?? false,
+  });
+
   const isEditMode = !!initialMetric;
-  const queryClient = useQueryClient();
 
-  // const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // To check if metric already exists to prevent dupplications
-  const { metrics } = useMetricsLibrary(1, 20);
-  const [debouncedName, setDebouncedName] = useState("");
-  const [debouncedDefaultUnit, setDebouncedDefaultUnit] = useState("");
-
-  // React Hook Form with Zod Validation
-  /**
-   * TODO: Create a handcrafter method for this instead of consuming the DTO directly
-   * Why? To ensure this form able to be used for Create and Update (which update required params)
-   */
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting, isValid },
     setValue,
+    setError,
+    clearErrors,
+    watch,
   } = useForm<MetricFormInputs>({
     resolver: zodResolver(metricFormSchema),
     mode: "onChange",
-    defaultValues: isEditMode
-      ? {
-          categoryId: initialMetric?.categoryId ?? undefined,
-          originalMetricId: initialMetric?.originalMetricId ?? undefined,
-          name: initialMetric?.name ?? "",
-          description: initialMetric?.description ?? "",
-          defaultUnit: initialMetric?.defaultUnit ?? "",
-          isPublic: initialMetric?.isPublic ?? false,
-        }
-      : {
-          categoryId: undefined,
-          originalMetricId: undefined,
-          name: "",
-          description: "",
-          defaultUnit: "",
-          isPublic: false,
-        },
+    defaultValues: makeDefaults(initialMetric),
   });
 
+  // --- NEW: rehydrate on open/change with a stable key
+  const formKey = open ? initialMetric?.id ?? "create" : "closed";
+  const prevKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (open && isEditMode && initialMetric) {
-      setValue("categoryId", initialMetric.categoryId ?? undefined);
-      setValue("originalMetricId", initialMetric.originalMetricId ?? undefined);
-      setValue("name", initialMetric.name ?? "");
-      setValue("description", initialMetric.description ?? "");
-      setValue("defaultUnit", initialMetric.defaultUnit ?? "");
-      setValue("isPublic", initialMetric.isPublic ?? false);
-    }
-  }, [open, isEditMode, initialMetric, metricId, setValue, reset]);
+    // if (open && isEditMode && initialMetric) {
+    //   setValue("categoryId", initialMetric.categoryId ?? undefined);
+    //   setValue("originalMetricId", initialMetric.originalMetricId ?? undefined);
+    //   setValue("name", initialMetric.name ?? "");
+    //   setValue("description", initialMetric.description ?? "");
+    //   setValue("defaultUnit", initialMetric.defaultUnit ?? "");
+    //   setValue("isPublic", initialMetric.isPublic ?? false);
+    // }
+    if (!open) return;
+    // only run when switching between "create" and a specific metric (or between metrics)
+    if (prevKeyRef.current === formKey) return;
+
+    reset(makeDefaults(initialMetric));
+    prevKeyRef.current = formKey;
+  }, [initialMetric, open, formKey, reset]);
+
+  // * ========== Duplicate Name Check ==========
 
   // Debounce the name input to prevent excessive API calls
-  const [cancelName] = useDebounce(
-    () => {
-      console.log("Debounced name:", debouncedName);
-    },
-    500,
+  const nameValue = watch("name") ?? "";
+  const [debouncedName, setDebouncedName] = useState(nameValue);
+  useDebounce(() => setDebouncedName(nameValue.trim()), 400, [nameValue]);
+
+  const duplicateCheckParams = useMemo(
+    () => ({
+      page: 1,
+      limit: 1,
+      name: debouncedName || undefined,
+    }),
     [debouncedName]
   );
 
-  cancelName();
-
-  // Debounce the defaultUnit input to prevent excessive API calls
-  const [cancelDefaultUnit] = useDebounce(
-    () => {
-      console.log("Debounced defaultUnit:", debouncedDefaultUnit);
-    },
-    500,
-    [debouncedDefaultUnit]
+  // Only fetch when modal is open and user typed 2+ chars
+  const shouldCheckDup = open && debouncedName.length >= 2;
+  const { metrics: dupCandidates = [] } = useMetricsLibrary(
+    duplicateCheckParams,
+    {
+      enabled: shouldCheckDup,
+      staleTime: 5_000,
+    }
   );
 
-  cancelDefaultUnit();
+  // derive current “has conflict” + current error state
+  const hasValidateError = !!errors.name && errors.name.type === "validate";
 
-  // * Mutation Hooks
+  // Reconcile dup result with current mode (ignore same record on edit)
+  useEffect(() => {
+    if (!shouldCheckDup) {
+      if (hasValidateError) clearErrors("name");
+      return;
+    }
+    const conflict = dupCandidates.some(
+      (m) =>
+        m.name.trim().toLowerCase() === debouncedName.toLowerCase() &&
+        (!isEditMode || m.id !== initialMetric?.id)
+    );
+    if (conflict && !hasValidateError) {
+      setError("name", {
+        type: "validate",
+        message: "Metric name already exists",
+      });
+    } else if (!conflict && hasValidateError) {
+      clearErrors("name");
+    }
+  }, [
+    shouldCheckDup,
+    dupCandidates,
+    debouncedName,
+    isEditMode,
+    initialMetric?.id,
+    hasValidateError,
+    setError,
+    clearErrors,
+  ]);
+
+  // * Mutations
   const {
     createMetric,
     isPending: isCreating,
     error: createError,
-  } = useCreateMetric(async () => {
-    queryClient.invalidateQueries({ queryKey: ["metrics", metricId] });
-  });
+  } = useCreateMetric();
 
   const {
     updateMetric,
     isPending: isUpdating,
     error: updateError,
-  } = useUpdateMetric(async () => {
-    queryClient.invalidateQueries({ queryKey: ["metrics", metricId] });
-  });
+  } = useUpdateMetric();
 
   const {
     deleteMetric,
     isPending: isDeleting,
     error: deleteError,
-  } = useDeleteMetric(async () => {
-    queryClient.invalidateQueries({ queryKey: ["metrics", metricId] });
-  });
+  } = useDeleteMetric();
 
   // * Submit Handlers
   const onSubmit = async (data: MetricFormInputs) => {
@@ -217,24 +222,7 @@ export const MetricForm: React.FC<MetricModalProps> = ({
           <ReusableFormField
             label="Metric Name"
             type="text"
-            register={register("name", {
-              onChange: (e) => {
-                setDebouncedName(e.target.value);
-              },
-              validate: {
-                /**
-                 * Validates if the metric name is unique.
-                 * @param {string} value - The metric name.
-                 * @returns {string | boolean} - An error message if the name is not unique, true otherwise.
-                 */
-                isUnique: (value: string) => {
-                  if (metrics.map((metric) => metric.name).includes(value)) {
-                    return "Metric name already exists";
-                  }
-                  return true;
-                },
-              },
-            })}
+            register={register("name")}
             placeholder="e.g., Steps Walked"
             error={errors.name?.message}
             isSubmitting={isSubmitting || isCreating || isUpdating}
@@ -251,11 +239,7 @@ export const MetricForm: React.FC<MetricModalProps> = ({
           <ReusableFormField
             label="Default Unit"
             type="text"
-            register={register("defaultUnit", {
-              onChange: (e) => {
-                setDebouncedDefaultUnit(e.target.value);
-              },
-            })}
+            register={register("defaultUnit")}
             placeholder="e.g., km, reps, hours"
             error={errors.defaultUnit?.message}
             isSubmitting={isSubmitting || isCreating || isUpdating}
