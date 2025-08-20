@@ -1,16 +1,5 @@
-// File: src/components/ui/SortControllerChips.tsx
-
+import React from "react";
 import SortChip from "./SortChip";
-
-/**
- * SortControllerChips.tsx
- * - Stateless Component
- *
- * @description
- * This component renders a set of sortable chips for controlling the sorting of a list.
- * Each chip corresponds to a column and can be clicked to change the sort order.
- * It supports both ascending and descending sort orders, and can render custom headers.
- */
 
 export interface SortChipsColumns<T> {
   key: keyof T;
@@ -22,7 +11,7 @@ export interface SortChipsColumns<T> {
   ) => React.ReactNode;
 }
 
-interface SortingChipsProps<T> {
+interface SortChipGroupProps<T> {
   columns: SortChipsColumns<T>[];
   sortBy: keyof T;
   sortOrder: "ASC" | "DESC" | null;
@@ -30,13 +19,13 @@ interface SortingChipsProps<T> {
   className?: string;
 }
 
-const SortControllerChips = <T,>({
+const SortChipGroup = <T,>({
   sortBy,
   sortOrder,
   onSort,
   className = "",
   columns,
-}: SortingChipsProps<T>) => {
+}: SortChipGroupProps<T>) => {
   return (
     <div className={`flex flex-wrap items-start ${className}`}>
       {columns.map((col) => {
@@ -68,4 +57,4 @@ const SortControllerChips = <T,>({
   );
 };
 
-export { SortControllerChips };
+export default SortChipGroup;
