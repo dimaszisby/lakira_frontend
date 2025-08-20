@@ -1,26 +1,17 @@
-// app/metrics/[id]/page.tsx
-
 "use client";
 
 import React from "react";
 import { useParams } from "next/navigation";
-
-// Components
 import Layout from "@/components/layout/Layout";
 import MetricLogsSection from "@/components/pages/metrics/detail/MetricLogSection";
 import MetricSettingsSection from "@/components/pages/metrics/detail/MetricSettingsSection";
 import MetricHeaderSection from "@/components/pages/metrics/detail/MetricHeaderSection";
 import { withAuth } from "@/components/hoc/withAuth";
 import SkeletonLoader from "@/components/ui/SekeletonLoader";
-
-// Hooks
 import { useMetricDetails } from "@/features/metrics/hooks";
-
-// Utilities
 import { extractMetricCore } from "@/features/metrics/helper";
 
 function MetricDetailPage() {
-  // Params
   const params = useParams();
   const metricId = params?.id as string;
 
@@ -35,32 +26,27 @@ function MetricDetailPage() {
   ]);
 
   if (isLoading) return <SkeletonLoader />;
-  if (error) return <div>Error loading metric details: {error.message}</div>; // Handle error gracefully
-  if (!metricDetail) return <div>Empty metric details</div>; // Or handle gracefully
+  if (error) return <div>Error loading metric details: {error.message}</div>;
+  if (!metricDetail) return <div>Empty metric details</div>;
 
   const metricCore = extractMetricCore(metricDetail);
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto space-y-4">
-        {/* Breadcrumbs */}
+      <div className="flex-row max-w-6xl mx-auto m-2 space-y-4">
         {/* <Breadcrumbs
           categoryName={metric.category?.name}
           categoryId={metric.category?.id}
           metricName={metric.name}
         /> */}
 
-        {/* Metric Card Header */}
         <MetricHeaderSection metric={metricCore} />
 
-        {/* Metric Insight Section */}
         {/* <MetricInsightSection logs={sortedLogs} /> */}
 
-        {/* Logs Section */}
         <MetricLogsSection metricId={metricId} />
 
         {/* Settings Section */}
-        {/* TODO: Development stuck here because no strategy yet to how to handle Metric that not have/generated MetricSettings yet */}
         <MetricSettingsSection settings={metricDetail?.settings} />
       </div>
     </Layout>
