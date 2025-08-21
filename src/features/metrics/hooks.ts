@@ -101,7 +101,15 @@ export function useMetricsListPaginationViaCursor(params: {
   useEffect(() => {
     setPage(1);
     setCursorByPage({ 1: null });
-  }, [params.limit, params.sort, params.q, params.filter?.name]);
+  }, [
+    params.limit,
+    params.sort,
+    params.q,
+    params.filter?.name,
+    params.filter?.categoryId,
+  ]);
+
+  console.log(`----- [Hook]: Filter`, params.filter);
 
   const query = useQuery({
     queryKey: metricsKeys.cursor.pages({ ...params, page, includeTotal: true }),

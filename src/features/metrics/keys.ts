@@ -37,7 +37,10 @@ const normalizeCursor = (p: {
   limit: p.limit ?? 20,
   sort: p.sort ?? "-createdAt",
   q: p.q?.trim() || undefined,
-  filter: { name: p.filter?.name?.trim() || undefined },
+  filter: {
+    name: p.filter?.name?.trim() || undefined,
+    categoryId: p.filter?.categoryId?.trim() || undefined,
+  },
   includeTotal: Boolean(p.includeTotal),
   page: p.page ?? undefined,
   after: p.after ?? undefined,

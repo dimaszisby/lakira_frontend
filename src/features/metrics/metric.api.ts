@@ -140,6 +140,7 @@ export async function getMetricLibraryViaCursor({
 
   if (q?.trim()) search.set("q", q.trim());
   if (filter?.name?.trim()) search.set("filter[name]", filter.name.trim());
+  if (filter?.categoryId?.trim()) search.set("filter[categoryId]", filter.categoryId.trim());
   if (after) search.set("after", after);
   if (includeTotal) search.set("includeTotal", "true");
 

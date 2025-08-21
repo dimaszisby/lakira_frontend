@@ -79,6 +79,7 @@ export type MetricSortableKeyViaCursor =
 /** Optional: strong typing for your filter block */
 export type MetricFilterViaCursor = {
   name?: string;
+  categoryId?: string;
 };
 
 export type MetricSortViaCursor = SortParam<MetricSortParamViaCursor>;
@@ -87,3 +88,22 @@ export type MetricCursorPage = CursorPage<
   MetricSortableKeyViaCursor,
   MetricFilterViaCursor
 >;
+
+// TODO: Refactor
+export const parseSort = (s: MetricSortParamViaCursor) => {
+  const dir = s.startsWith("-") ? "DESC" : "ASC";
+  const field = s.startsWith("-") ? s.slice(1) : s;
+  return { field, dir } as { field: string; dir: "ASC" | "DESC" };
+};
+// TODO: Refactor
+export const nextSortForColumn = (
+  current: MetricSortParamViaCursor,
+  column: MetricSortableKeyViaCursor
+): MetricSortParamViaCursor => {
+  const { field, dir } = parseSort(current);
+  if (field === column) {
+    return (dir === "ASC" ? `-${column}` : column) as MetricSortParamViaCursor; // toggle direction
+  }
+  if (column === "name") return "name"; // default direction per field: dates & numbers -> DESC, strings -> ASC
+  return `-${column}` as MetricSortParamViaCursor;
+};
