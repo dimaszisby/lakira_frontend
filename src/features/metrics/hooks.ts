@@ -27,26 +27,6 @@ import { useEffect, useState } from "react";
 import { CursorPage } from "@/src/types/generics/CursorPage";
 import { MetricFilterViaCursor, MetricSortViaCursor } from "./sort";
 
-// TODO: FIX caching for Create, Update, Delete
-
-// Cache Key builder
-export const mKeys = {
-  infinite: (p: {
-    limit: number;
-    sort: MetricSortViaCursor;
-    q?: string;
-    filter?: MetricFilterViaCursor;
-  }) => ["metricCategories", { ...p }] as const,
-  pages: (p: {
-    limit: number;
-    sort: MetricSortViaCursor;
-    q?: string;
-    filter?: MetricFilterViaCursor;
-    includeTotal?: boolean;
-    page?: number;
-  }) => ["metricCategories", "pages", { ...p }] as const,
-};
-
 // Types
 type UseMetricArgs = {
   limit?: number;
@@ -56,6 +36,12 @@ type UseMetricArgs = {
 };
 
 type CursorResult = CursorPage<MetricPreviewResponseDTO>;
+
+// List invalidation helper
+const invalidateAllMetrics = (qc: ReturnType<typeof useQueryClient>) =>
+  qc.invalidateQueries({
+    predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[0] === "metrics",
+  });
 
 // * =========== Query Hooks ===========
 
@@ -118,7 +104,7 @@ export function useMetricsListPaginationViaCursor(params: {
   }, [params.limit, params.sort, params.q, params.filter?.name]);
 
   const query = useQuery({
-    queryKey: mKeys.pages({ ...params, page, includeTotal: true }),
+    queryKey: metricsKeys.cursor.pages({ ...params, page, includeTotal: true }),
     queryFn: async () => {
       const after = cursorByPage[page] ?? undefined;
       const res = await getMetricLibraryViaCursor({
@@ -167,10 +153,10 @@ export function useMetricInfiniteViaCursor(
     CursorResult, // TQueryFnData
     Error, // TError
     InfiniteData<CursorResult, string | undefined>, // TData (no select -> keep InfiniteData)
-    ReturnType<typeof mKeys.infinite>, // TQueryKey
+    ReturnType<typeof metricsKeys.cursor.infinite>, // TQueryKey
     string | undefined // TPageParam
   >({
-    queryKey: mKeys.infinite({ limit, sort, q, filter }),
+    queryKey: metricsKeys.cursor.infinite({ limit, sort, q, filter }),
     queryFn: ({ pageParam }) =>
       getMetricLibraryViaCursor({
         limit,
@@ -180,7 +166,7 @@ export function useMetricInfiniteViaCursor(
         after: pageParam, // pageParam is TParam here
       }),
     enabled: enabled,
-    initialPageParam: undefined, // ✅ REQUIRED in v5
+    initialPageParam: undefined, // REQUIRED in v5
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
@@ -204,8 +190,7 @@ const useCreateMetric = (
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
     mutationFn: createMetric,
     onSuccess: (created) => {
-      //  Invalidate lists (name/category/logCount may affect sort/filter)
-      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+      invalidateAllMetrics(qc);
 
       // Optional: optimistic stitch into the *current* first page if you want:
       // qc.setQueryData(metricsKeys.list({ page: 1, limit: 20, sortBy: "createdAt", sortOrder: "DESC" }), (old: any) => ...);
@@ -235,14 +220,12 @@ const useUpdateMetric = (
   >({
     mutationFn: updateMetric, // variables: { metricId, metric }
     onSuccess: (updated, vars: { metricId: string }) => {
-      // Invalidate for this id
+      // Invalidate for specific ID include/logsLimit variants
       qc.invalidateQueries({
-        queryKey: metricsKeys.detail(vars.metricId),
+        queryKey: metricsKeys.detailByIdRoot(vars.metricId),
         exact: false,
       });
-
-      //  Invalidate lists (name/category/logCount may affect sort/filter)
-      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+      invalidateAllMetrics(qc);
 
       // Optional: patch currently cached detail to avoid a flicker:
       // qc.setQueryData(metricsKeys.detail(vars.metricId), (old: any) => merge(old, updated));
@@ -263,14 +246,12 @@ const useDeleteMetric = (
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
     mutationFn: deleteMetric, // variables: metricId
     onSuccess: (_res, metricId: string) => {
-      // Invalidate for this id
+      // Nuke for specific ID
       qc.removeQueries({
-        queryKey: metricsKeys.detail(metricId),
+        queryKey: metricsKeys.detailByIdRoot(metricId),
         exact: false,
       });
-
-      // Invalidate all lists (name/category/logCount may affect sort/filter)
-      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+      invalidateAllMetrics(qc);
 
       onSuccess?.(metricId);
     },

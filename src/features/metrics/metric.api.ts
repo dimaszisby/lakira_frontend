@@ -10,7 +10,6 @@ import { PaginatedMetricListResponseDTO } from "@/types/dtos/metric.dto";
 import { handleApiError } from "@/src/services/api/handleApiError";
 import api from "@/src/services/api/api";
 import { IncludeKey, MetricsListParams } from "./types";
-import { normalizeIncludes } from "./helper";
 import {
   DEFAULT_METRIC_SORT,
   MetricCursorPage,
@@ -18,6 +17,7 @@ import {
   METRICS_PAGE_SIZE,
   MetricSortViaCursor,
 } from "./sort";
+import { normalizeIncludes } from "./keys";
 
 // TODO: Generic Function
 export type ListMetricParams = {
@@ -65,13 +65,13 @@ export const createMetric = async (
   const headers: Record<string, string> = {};
   if (opts.idempotencyKey) headers["Idempotency-Key"] = opts.idempotencyKey;
 
-  const response = await api.post<ApiResponse<{ metric: MetricResponseDTO }>>(
+  const response = await api.post<ApiResponse<MetricResponseDTO>>(
     "/metrics",
     metric,
     { signal: opts.signal, headers }
   );
 
-  return unwrap(response).metric;
+  return unwrap(response);
 };
 
 // * TODO: Currently have no use for this function, but it can be useful in the future
@@ -143,14 +143,11 @@ export async function getMetricLibraryViaCursor({
   if (after) search.set("after", after);
   if (includeTotal) search.set("includeTotal", "true");
 
-  const { data } = await api.get<ApiResponse<MetricCursorPage>>(
+  const response = await api.get<ApiResponse<MetricCursorPage>>(
     `/metrics?${search.toString()}`
   );
 
-  if (data.status !== "success" || !data.data) {
-    throw new Error(data.message || "Failed to fetch metrics.");
-  }
-  return data.data;
+  return unwrap(response);
 }
 
 /**
@@ -218,13 +215,13 @@ export async function updateMetric(
 ): Promise<MetricResponseDTO> {
   const { metricId, metric } = args;
   try {
-    const response = await api.put<ApiResponse<{ metric: MetricResponseDTO }>>(
+    const response = await api.put<ApiResponse<MetricResponseDTO>>(
       `/metrics/${metricId}`,
       metric,
       { signal: opts.signal }
     );
 
-    return unwrap(response).metric;
+    return unwrap(response);
   } catch (error) {
     handleApiError(error);
     throw error;
@@ -242,11 +239,12 @@ export async function deleteMetric(
   opts: RequestOpts = {}
 ): Promise<MetricResponseDTO> {
   try {
-    const response = await api.delete<
-      ApiResponse<{ metric: MetricResponseDTO }>
-    >(`/metrics/${metricId}`, { signal: opts.signal });
+    const response = await api.delete<ApiResponse<MetricResponseDTO>>(
+      `/metrics/${metricId}`,
+      { signal: opts.signal }
+    );
 
-    return unwrap(response).metric;
+    return unwrap(response);
   } catch (error) {
     handleApiError(error);
     throw error;
