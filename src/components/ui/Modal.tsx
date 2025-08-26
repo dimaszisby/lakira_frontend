@@ -18,7 +18,7 @@ export default function Modal({ isOpen, onClose, children }: Modal) {
       aria-modal="true"
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div className="bg-white rounded-lg shadow-lg p-6 relative">
+      <div className="bg-white rounded-2xl shadow-lg p-6 relative">
         <button
           className="absolute top-4 right-4 text-gray-700 hover:text-red-500"
           onClick={onClose}
