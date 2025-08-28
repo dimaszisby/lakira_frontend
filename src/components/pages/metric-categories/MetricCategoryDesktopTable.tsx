@@ -1,6 +1,6 @@
 import React from "react";
 import { Table, TableColumn } from "@/components/ui/Table";
-import { MetricCategoryResponseDTO } from "@/types/dtos/metric-category.dto";
+import { MetricCategoryResponseDTO } from "@/src/types/dtos/metric-category.dto";
 import { CategoryTableProps } from "./type";
 
 const columns: TableColumn<MetricCategoryResponseDTO>[] = [

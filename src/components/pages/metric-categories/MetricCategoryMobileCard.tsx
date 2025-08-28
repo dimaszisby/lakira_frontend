@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { MetricCategoryResponseDTO } from "@/types/dtos/metric-category.dto";
+import { MetricCategoryResponseDTO } from "@/src/types/dtos/metric-category.dto";
 import { useRouter } from "next/navigation";
 
 interface MetricCategoryMobileCardProps {

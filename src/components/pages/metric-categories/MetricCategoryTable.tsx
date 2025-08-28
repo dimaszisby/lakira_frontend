@@ -2,7 +2,7 @@ import React from "react";
 import MetricCategoryMobileTable from "./MetricCategoryMobileTable";
 import MetricCategoryDesktopTable from "./MetricCategoryDesktopTable";
 import { CategoryTableProps } from "./type";
-import { MetricCategoryResponseDTO } from "@/types/dtos/metric-category.dto";
+import { MetricCategoryResponseDTO } from "@/src/types/dtos/metric-category.dto";
 
 const MetricCategoryTable = React.memo(
   ({
