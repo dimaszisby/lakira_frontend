@@ -1,18 +1,12 @@
-// src/features/metricLogs/hooks.ts
-
 import { useQuery, useMutation } from "@tanstack/react-query";
-
-// Types
 import { PaginatedMetricLogListResponseDTO } from "@/src/types/dtos/metric-log.dto";
-
-// Services
 import {
   getMetricLogs,
   createMetricLog,
   createMetricLogDummy,
   deleteMetricLog,
   updateMetricLog,
-} from "@/src/services/api/metric-log.api";
+} from "@/src/features/metricLogs/api";
 
 // * =========== Query Hooks ===========
 
@@ -51,6 +45,8 @@ const useMetricLogs = (metricId: string, page: number, limit: number = 20) => {
 };
 
 // * =========== Mutation Hooks ===========
+
+// TODO: Overhaul to new approach (use Metric's hook(s) as an example)
 
 /**
  * Custom hook to create a new metric log entry.
