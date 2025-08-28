@@ -1,5 +1,3 @@
-// components/layout/Header.tsx
-
 "use client";
 
 import Link from "next/link";
@@ -12,7 +10,6 @@ const Header = () => {
   const router = useRouter();
 
   const handleLogout = () => {
-    // Implement logout logic
     localStorage.removeItem("token");
     setUser(null);
     router.push("/auth/login");

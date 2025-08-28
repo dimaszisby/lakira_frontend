@@ -1,45 +1,24 @@
-// compponent/layout/Sidebar.tsx
-
-/**
- * Sidebar component for the application layout.
- * - with mobile drawer and logout confirmation modal.
- *
- * TODO: Refactor the sidebar component according to the newest UI changes.
- */
+// TODO: (WIP) Refactor the sidebar component according to the newest UI changes.
 
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { List, X } from "phosphor-react";
 import Modal from "@/src/components/ui/Modal"; // ✅ Ensure correct import (folder renamed to "components")
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logoutUser } from "@/src/services/api/auth.api";
 import { useAtom } from "jotai";
 import { userAtom } from "@/src/services/state/atoms";
-import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
-
-import {
-  SquaresFour,
-  ChartBar,
-  Folder,
-  UserCircle,
-  SignOut,
-} from "phosphor-react";
-
-const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: SquaresFour },
-  { name: "Metrics", href: "/metrics", icon: ChartBar },
-  { name: "Category", href: "/metric-categories", icon: Folder },
-  { name: "Account", href: "/account", icon: UserCircle },
-];
+import { SignOut } from "phosphor-react";
+import { navItems } from "./type";
+import SideBarNavigationItems from "./SideBarNavigationItems";
+import BottomNavigationBar from "./BottomNavigationBar";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [, setMobileOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [, setUser] = useAtom(userAtom);
 
@@ -47,7 +26,7 @@ export default function Sidebar() {
   const queryClient = useQueryClient();
 
   // Mobile state handlers
-  const toggleMobileMenu = () => setMobileOpen((prev) => !prev);
+  // const toggleMobileMenu = () => setMobileOpen((prev) => !prev);
   const closeMobileMenu = () => setMobileOpen(false);
 
   // Updated: Using "status" property to check if the mutation is loading.
@@ -65,14 +44,14 @@ export default function Sidebar() {
     },
   });
 
-  const mobileTopBar = () => (
-    <div className="lg:hidden flex items-center bg-white p-4 shadow-md fixed top-0 w-full z-50 space-x-4">
-      <button onClick={toggleMobileMenu} aria-label="Toggle Menu">
-        {mobileOpen ? <X size={24} /> : <List size={24} />}
-      </button>
-      <h2 className="text-xl font-bold flex items-center">📊 Lakira</h2>
-    </div>
-  );
+  // const mobileTopBar = () => (
+  //   <div className="lg:hidden flex items-center bg-white p-4 shadow-md fixed top-0 w-full z-50 space-x-4">
+  //     <button onClick={toggleMobileMenu} aria-label="Toggle Menu">
+  //       {mobileOpen ? <X size={24} /> : <List size={24} />}
+  //     </button>
+  //     <h2 className="text-xl font-bold flex items-center">📊 Lakira</h2>
+  //   </div>
+  // );
 
   const logoutButton = () => (
     <div className="mt-auto">
@@ -88,20 +67,22 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* ✅ Mobile Top Bar */}
-      {mobileTopBar()}
+      {/* {mobileTopBar()} */}
 
-      {/* ✅ Desktop Sidebar */}
+      {/* Desktop Sidebar */}
       <div className="fixed top-4 left-4 bottom-4 w-64 p-6 bg-white shadow-lg z-50 lg:flex flex-col hidden rounded-2xl">
         <h2 className="text-2xl font-bold mb-6">📊 Lakira</h2>
-        <NavigationItems pathname={pathname || ""} />
+        <SideBarNavigationItems
+          navItems={navItems}
+          pathname={pathname || ""}
+          onClick={closeMobileMenu}
+        />
 
-        {/* ✅ Logout Button */}
         {logoutButton()}
       </div>
 
       {/* ✅ Mobile Sidebar Drawer */}
-      {mobileOpen && (
+      {/* {mobileOpen && (
         <Modal isOpen={mobileOpen} onClose={closeMobileMenu}>
           <motion.div
             initial={{ x: -300 }}
@@ -123,7 +104,8 @@ export default function Sidebar() {
               This is Mobile
             </label>
 
-            <NavigationItems
+            <SideBarNavigationItems
+              navItems={navItems}
               pathname={pathname || ""}
               onClick={closeMobileMenu}
             />
@@ -139,9 +121,17 @@ export default function Sidebar() {
             </div>
           </motion.div>
         </Modal>
-      )}
+      )} */}
 
-      {/* ✅ Logout Confirmation Modal */}
+      <BottomNavigationBar
+        navItems={navItems}
+        pathname={pathname || ""}
+        onClick={closeMobileMenu}
+        className="lg:hidden"
+        // style={{ display: mobileOpen ? "block" : "hidden" }}
+      />
+
+      {/* Logout Confirmation Modal */}
       <Modal isOpen={logoutModalOpen} onClose={() => setLogoutModalOpen(false)}>
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">Logout Confirmation</h2>
@@ -169,35 +159,3 @@ export default function Sidebar() {
     </>
   );
 }
-
-// Subcomponent for Navigation Items
-const NavigationItems = ({
-  pathname,
-  onClick,
-}: {
-  pathname: string;
-  onClick?: () => void;
-}) => {
-  return (
-    <nav>
-      <ul className="space-y-3">
-        {navItems.map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              onClick={onClick}
-              className={`flex items-center px-4 py-2 rounded-lg transition font-semibold ${
-                pathname === item.href
-                  ? "bg-pink-500 text-white"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              <item.icon size={20} className="mr-2" />
-              {item.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-};
