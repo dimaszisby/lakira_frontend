@@ -1,5 +1,3 @@
-// types/generics/ApiResponse.ts
-
 import { AxiosResponse } from "axios";
 
 type Status = "success" | "fail" | "error";
