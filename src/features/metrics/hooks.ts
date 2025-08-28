@@ -11,7 +11,7 @@ import {
   PaginatedMetricListResponseDTO,
   UpdateMetricRequestDTO,
   UserMetricDetailResponseDTO,
-} from "@/types/dtos/metric.dto";
+} from "@/src/features/metrics/metric.dto";
 import {
   createMetric,
   createMetricDummy,
@@ -26,6 +26,14 @@ import { IncludeKey, ListOptions, MetricsListParams } from "./types";
 import { useEffect, useState } from "react";
 import { CursorPage } from "@/src/types/generics/CursorPage";
 import { MetricFilterViaCursor, MetricSortViaCursor } from "./sort";
+import { toMetricHeaderVM, toMetricSettingsVM } from "./mappers";
+import { MetricHeaderVM } from "./view-models";
+import {
+  invalidateMetricDetail,
+  invalidateMetricLists,
+  patchMetricHeaderOptimistic,
+  removeMetricDetail,
+} from "./cache";
 
 // Types
 type UseMetricArgs = {
@@ -36,12 +44,6 @@ type UseMetricArgs = {
 };
 
 type CursorResult = CursorPage<MetricPreviewResponseDTO>;
-
-// List invalidation helper
-const invalidateAllMetrics = (qc: ReturnType<typeof useQueryClient>) =>
-  qc.invalidateQueries({
-    predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[0] === "metrics",
-  });
 
 // * =========== Query Hooks ===========
 
@@ -73,6 +75,9 @@ const useMetricsLibrary = (
   };
 };
 
+/**
+ * @deprecated
+ */
 function useMetricDetails(
   metricId: string,
   includes: IncludeKey[] = [],
@@ -82,6 +87,21 @@ function useMetricDetails(
     queryKey: metricsKeys.detail(metricId, includes, logsLimit),
     queryFn: () => getUserMetricDetails(metricId, { includes, logsLimit }),
     enabled: !!metricId,
+  });
+}
+
+function useMetricDetailComposite(metricId: string) {
+  return useQuery({
+    queryKey: metricsKeys.detail(metricId, ["category", "settings"]),
+    queryFn: () =>
+      getUserMetricDetails(metricId, { includes: ["category", "settings"] }),
+    select: (dto) => ({
+      header: toMetricHeaderVM(dto),
+      settings: toMetricSettingsVM(dto),
+    }),
+    enabled: !!metricId,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 }
 
@@ -198,7 +218,7 @@ const useCreateMetric = (
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
     mutationFn: createMetric,
     onSuccess: (created) => {
-      invalidateAllMetrics(qc);
+      invalidateMetricLists(qc);
 
       // Optional: optimistic stitch into the *current* first page if you want:
       // qc.setQueryData(metricsKeys.list({ page: 1, limit: 20, sortBy: "createdAt", sortOrder: "DESC" }), (old: any) => ...);
@@ -221,24 +241,41 @@ const useUpdateMetric = (
   onError?: (error: Error) => void
 ) => {
   const qc = useQueryClient();
+
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation<
     MetricResponseDTO,
     Error,
     UpdateMetricVars
   >({
     mutationFn: updateMetric, // variables: { metricId, metric }
-    onSuccess: (updated, vars: { metricId: string }) => {
-      // Invalidate for specific ID include/logsLimit variants
-      qc.invalidateQueries({
-        queryKey: metricsKeys.detailByIdRoot(vars.metricId),
-        exact: false,
+    onMutate: async ({ metricId, metric }) => {
+      await qc.cancelQueries({
+        queryKey: metricsKeys.detailByIdRoot(metricId),
       });
-      invalidateAllMetrics(qc);
 
-      // Optional: patch currently cached detail to avoid a flicker:
-      // qc.setQueryData(metricsKeys.detail(vars.metricId), (old: any) => merge(old, updated));
+      await qc.cancelQueries({
+        queryKey: metricsKeys.detailByIdRoot(metricId),
+      });
 
-      onSuccess?.(updated);
+      const patch: Partial<
+        Pick<
+          MetricHeaderVM,
+          "name" | "defaultUnit" | "isPublic" | "description"
+        >
+      > = {
+        name: metric.name,
+        defaultUnit: metric.defaultUnit,
+        isPublic: metric.isPublic,
+        description: metric.description,
+      };
+
+      const ctx = patchMetricHeaderOptimistic(qc, metricId, patch);
+      return ctx; // { key, prev }
+    },
+    onSuccess: (_updated, vars: { metricId: string }) => {
+      invalidateMetricDetail(qc, vars.metricId);
+      invalidateMetricLists(qc);
+      onSuccess?.(_updated);
     },
     onError,
   });
@@ -252,15 +289,10 @@ const useDeleteMetric = (
 ) => {
   const qc = useQueryClient();
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
-    mutationFn: deleteMetric, // variables: metricId
+    mutationFn: deleteMetric,
     onSuccess: (_res, metricId: string) => {
-      // Nuke for specific ID
-      qc.removeQueries({
-        queryKey: metricsKeys.detailByIdRoot(metricId),
-        exact: false,
-      });
-      invalidateAllMetrics(qc);
-
+      removeMetricDetail(qc, metricId);
+      invalidateMetricLists(qc);
       onSuccess?.(metricId);
     },
     onError,
@@ -277,7 +309,7 @@ const useCreateMetricDummy = (
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
     mutationFn: createMetricDummy,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: metricsKeys.lists(), exact: false });
+      invalidateMetricLists(qc);
       onSuccess?.();
     },
     onError,
@@ -295,6 +327,7 @@ const useCreateMetricDummy = (
 export {
   useMetricsLibrary,
   useMetricDetails,
+  useMetricDetailComposite,
   useCreateMetric,
   useUpdateMetric,
   useDeleteMetric,
