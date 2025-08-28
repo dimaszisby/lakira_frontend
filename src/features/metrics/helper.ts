@@ -1,4 +1,4 @@
-import { UserMetricDetailResponseDTO } from "@/src/types/dtos/metric.dto";
+import { UserMetricDetailResponseDTO } from "@/src/features/metrics/metric.dto";
 import { MetricCore } from "./types";
 
 export const extractMetricCore = (

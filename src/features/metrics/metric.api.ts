@@ -3,10 +3,10 @@ import {
   GenerateDummyMetricsRequestDTO,
   UserMetricDetailResponseDTO,
   UpdateMetricRequestDTO,
-} from "@/types/dtos/metric.dto";
-import { CreateMetricRequestDTO } from "@/types/dtos/metric.dto";
+} from "@/src/features/metrics/metric.dto";
+import { CreateMetricRequestDTO } from "@/src/features/metrics/metric.dto";
 import ApiResponse, { unwrap } from "@/types/generics/ApiResponse";
-import { PaginatedMetricListResponseDTO } from "@/types/dtos/metric.dto";
+import { PaginatedMetricListResponseDTO } from "@/src/features/metrics/metric.dto";
 import { handleApiError } from "@/src/services/api/handleApiError";
 import api from "@/src/services/api/api";
 import { IncludeKey, MetricsListParams } from "./types";
@@ -140,7 +140,8 @@ export async function getMetricLibraryViaCursor({
 
   if (q?.trim()) search.set("q", q.trim());
   if (filter?.name?.trim()) search.set("filter[name]", filter.name.trim());
-  if (filter?.categoryId?.trim()) search.set("filter[categoryId]", filter.categoryId.trim());
+  if (filter?.categoryId?.trim())
+    search.set("filter[categoryId]", filter.categoryId.trim());
   if (after) search.set("after", after);
   if (includeTotal) search.set("includeTotal", "true");
 
@@ -195,6 +196,8 @@ export const getUserMetricDetails = async (
       `/metrics/${metricId}${query}`,
       { signal: opts.signal }
     );
+
+    console.log("------ RESPONSE,", response);
 
     return unwrap(response);
   } catch (error: unknown) {
