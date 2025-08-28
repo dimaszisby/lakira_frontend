@@ -1,5 +1,6 @@
 import {
   InfiniteData,
+  QueryKey,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -27,7 +28,7 @@ import { useEffect, useState } from "react";
 import { CursorPage } from "@/src/types/generics/CursorPage";
 import { MetricFilterViaCursor, MetricSortViaCursor } from "./sort";
 import { toMetricHeaderVM, toMetricSettingsVM } from "./mappers";
-import { MetricHeaderVM } from "./view-models";
+import { MetricDetailCompositeVM, MetricHeaderVM } from "./view-models";
 import {
   invalidateMetricDetail,
   invalidateMetricLists,
@@ -236,23 +237,23 @@ type UpdateMetricVars = {
   metric: UpdateMetricRequestDTO;
 };
 
+type UpdateCtx = { key: QueryKey; prev?: MetricDetailCompositeVM };
+
 const useUpdateMetric = (
   onSuccess?: (updated: MetricResponseDTO) => void,
-  onError?: (error: Error) => void
+  onErrorCb?: (error: Error) => void
 ) => {
   const qc = useQueryClient();
 
   const { mutateAsync, isError, isSuccess, error, isPending } = useMutation<
     MetricResponseDTO,
     Error,
-    UpdateMetricVars
+    UpdateMetricVars,
+    UpdateCtx
   >({
-    mutationFn: updateMetric, // variables: { metricId, metric }
+    mutationFn: updateMetric,
+    // optimistic patch
     onMutate: async ({ metricId, metric }) => {
-      await qc.cancelQueries({
-        queryKey: metricsKeys.detailByIdRoot(metricId),
-      });
-
       await qc.cancelQueries({
         queryKey: metricsKeys.detailByIdRoot(metricId),
       });
@@ -269,15 +270,23 @@ const useUpdateMetric = (
         description: metric.description,
       };
 
-      const ctx = patchMetricHeaderOptimistic(qc, metricId, patch);
-      return ctx; // { key, prev }
+      return patchMetricHeaderOptimistic(qc, metricId, patch); // return context for rollback
     },
-    onSuccess: (_updated, vars: { metricId: string }) => {
+    // Rollback
+    onError: (err, _vars, ctx) => {
+      if (ctx?.prev) {
+        qc.setQueryData<MetricDetailCompositeVM>(ctx.key, ctx.prev);
+      }
+      onErrorCb?.(err);
+    },
+    onSettled: (_data, _err, vars) => {
       invalidateMetricDetail(qc, vars.metricId);
       invalidateMetricLists(qc);
-      onSuccess?.(_updated);
     },
-    onError,
+    // (Optional) Setup for a success callback for UI toasts
+    onSuccess: (updated) => {
+      onSuccess?.(updated);
+    },
   });
 
   return { updateMetric: mutateAsync, isError, isSuccess, error, isPending };
