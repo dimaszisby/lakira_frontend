@@ -1,5 +1,3 @@
-// components/ui/ReusableFormField.tsx
-
 import React from "react";
 import { UseFormRegisterReturn } from "react-hook-form";
 
@@ -8,32 +6,16 @@ import { UseFormRegisterReturn } from "react-hook-form";
  *
  * This component provides a standardized and configurable form field,
  * reducing code duplication and improving maintainability.
+ * @deprecated replaced with specific implementation
  */
 interface ReusableFormFieldProps {
-  /**
-   * The label for the form field.
-   */
   label: string;
-  /**
-   * The type of input field (e.g., "text", "number", "email").
-   */
   type: string;
-  /**
-   * The register function from react-hook-form.
-   */
   register: UseFormRegisterReturn;
-  /**
-   * The error message to display (optional).
-   */
   error?: string;
-  /**
-   * The placeholder text for the input field (optional).
-   */
   placeholder?: string;
-  /**
-   * Whether the form is submitting.
-   */
   isSubmitting?: boolean;
+  className?: string;
 }
 
 const ReusableFormField: React.FC<ReusableFormFieldProps> = ({
@@ -43,13 +25,16 @@ const ReusableFormField: React.FC<ReusableFormFieldProps> = ({
   error,
   placeholder,
   isSubmitting,
+  className,
 }) => {
   return (
     <div>
-      <label className="block text-input-label text-gray-700 mb-1">{label}</label>
+      <label className="block text-input-label text-gray-700 mb-1">
+        {label}
+      </label>
       <input
         type={type}
-        className="input-textfield"
+        className={`input-textfield ${className}`}
         placeholder={placeholder}
         {...register}
         onChange={(e) => {
@@ -58,6 +43,7 @@ const ReusableFormField: React.FC<ReusableFormFieldProps> = ({
         }}
         disabled={isSubmitting}
       />
+      {/** TODO: Create an error message that persist its size (height), so the form layout not get pushed around when it transitioning from to hidden and showing */}
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
