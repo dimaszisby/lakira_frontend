@@ -1,4 +1,10 @@
-// src/types/dtos/user.dto.ts
+import { UserAtom } from "@/src/services/state/atoms";
+import {
+  createUserSchema,
+  loginUserSchema,
+  updateUserSchema,
+} from "@/types/api/zod-user.schema";
+import { z } from "zod";
 
 /**
  * @file src/types/dtos/user.dto.ts
@@ -7,14 +13,6 @@
  * defining the structure of data exchanged between the client and server.
  * DTOs are often immutable.
  */
-
-import { UserAtom } from "@/src/services/state/atoms";
-import {
-  createUserSchema,
-  loginUserSchema,
-  updateUserSchema,
-} from "@/types/api/zod-user.schema";
-import { z } from "zod";
 
 // * Response DTOs
 

@@ -1,9 +1,4 @@
-// src/types/dtos/metric-log.dto.ts
-
-
 import { z } from "zod";
-
-// Internal validation schemas
 import {
   createMetricLogSchema,
   updateMetricLogSchema,

@@ -1,6 +1,4 @@
 import { z } from "zod";
-
-// Internal validation schemas
 import {
   createMetricSettingsSchema,
   updateMetricSettingsSchema,

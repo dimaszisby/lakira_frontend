@@ -1,6 +1,4 @@
 import { z } from "zod";
-
-// Internal validation schemas
 import {
   createMetricCategorySchema,
   updateMetricCategorySchema,
@@ -63,38 +61,49 @@ export interface MetricCategoryResponseDTO {
    * @readonly
    */
   readonly deletedAt?: string | null;
+
+  /**
+   * @property {number} metricCount - The number of metrics associated with the Category.
+   * @readonly
+   * @example 10
+   */
+  readonly metricCount: number;
 }
 
+export interface PaginatedMetricCategoryListResponseDTO {
+  categories: MetricCategoryResponseDTO[];
+  total: number;
+}
 
 // * Request DTOs
 
 /**
-* @typedef CreateMetricCategoryRequestDTO
-* @description Represents the expected structure of the request body when creating a new metric category.
-* Inferred from the Zod schema for validation.
-*/
+ * @typedef CreateMetricCategoryRequestDTO
+ * @description Represents the expected structure of the request body when creating a new metric category.
+ * Inferred from the Zod schema for validation.
+ */
 export type CreateMetricCategoryRequestDTO = z.infer<
- typeof createMetricCategorySchema.shape.body
+  typeof createMetricCategorySchema.shape.body
 >;
 
 /**
-* @typedef UpdateMetricCategoryRequestDTO
-* @description Represents the expected structure of the request body when updating an existing metric category.
-* Inferred from the Zod schema for validation.
-*/
+ * @typedef UpdateMetricCategoryRequestDTO
+ * @description Represents the expected structure of the request body when updating an existing metric category.
+ * Inferred from the Zod schema for validation.
+ */
 export type UpdateMetricCategoryRequestDTO = z.infer<
- typeof updateMetricCategorySchema.shape.body
+  typeof updateMetricCategorySchema.shape.body
 >;
 
 /**
-* * ===== DTOs for Testing Purposes =====
-*/
+ * * ===== DTOs for Testing Purposes =====
+ */
 
 /**
-* @typedef GenerateDummyMetricCategoriesRequestDTO
-* @description Represents the expected structure of the request body when generating dummy metric category entries.
-* Inferred from the Zod schema for validation.
-*/
+ * @typedef GenerateDummyMetricCategoriesRequestDTO
+ * @description Represents the expected structure of the request body when generating dummy metric category entries.
+ * Inferred from the Zod schema for validation.
+ */
 export type GenerateDummyMetricCategoriesRequestDTO = z.infer<
- typeof generateDummyMetricCategoriesSchema.shape.body
+  typeof generateDummyMetricCategoriesSchema.shape.body
 >;
