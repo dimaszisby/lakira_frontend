@@ -272,7 +272,6 @@ const useUpdateMetric = (
 
       return patchMetricHeaderOptimistic(qc, metricId, patch); // return context for rollback
     },
-    // Rollback
     onError: (err, _vars, ctx) => {
       if (ctx?.prev) {
         qc.setQueryData<MetricDetailCompositeVM>(ctx.key, ctx.prev);
@@ -292,19 +291,51 @@ const useUpdateMetric = (
   return { updateMetric: mutateAsync, isError, isSuccess, error, isPending };
 };
 
+type DeleteCtx = {
+  // Temp snapshot all detail variants for restoration
+  details: Array<{ key: QueryKey; prev: unknown }>;
+};
+
 const useDeleteMetric = (
   onSuccess?: (deletedId: string) => void,
-  onError?: (error: Error) => void
+  onErrorCb?: (error: Error) => void
 ) => {
   const qc = useQueryClient();
-  const { mutateAsync, isError, isSuccess, error, isPending } = useMutation({
+  const { mutateAsync, isError, isSuccess, error, isPending } = useMutation<
+    MetricResponseDTO, // TData
+    Error, // TError
+    string, // TVariables (metricId)
+    DeleteCtx // TContext
+  >({
     mutationFn: deleteMetric,
-    onSuccess: (_res, metricId: string) => {
+    // Optimistic delete
+    onMutate: async (metricId) => {
+      await qc.cancelQueries({
+        queryKey: metricsKeys.detailByIdRoot(metricId),
+      });
+
+      const details = qc
+        .getQueriesData({ queryKey: metricsKeys.detailByIdRoot(metricId) })
+        .map(([key, prev]) => {
+          qc.setQueryData(key, undefined); // Temp clearing
+          return { key, prev };
+        });
+
+      return { details };
+    },
+    onError: (err, _metricId, ctx) => {
+      ctx?.details.forEach(({ key, prev }) => {
+        qc.setQueryData(key, prev);
+      });
+      onErrorCb?.(err);
+    },
+    onSuccess: (_void, metricId) => {
       removeMetricDetail(qc, metricId);
-      invalidateMetricLists(qc);
       onSuccess?.(metricId);
     },
-    onError,
+    onSettled: () => {
+      invalidateMetricLists(qc);
+    },
   });
 
   return { deleteMetric: mutateAsync, isError, isSuccess, error, isPending };
