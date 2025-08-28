@@ -1,15 +1,15 @@
 import { useState } from "react";
+import MetricForm from "../MetricForm";
 import DataLabel from "@/src/components/ui/DataLabel";
+import { MetricHeaderVM } from "@/src/features/metrics/view-models";
 import { PencilSimple } from "phosphor-react";
 import { formatDate } from "@/utils/helpers/dateHelper";
 import { safeLabel } from "@/utils/helpers/labelHelper";
-import MetricForm from "../MetricForm";
-import { MetricHeaderVM } from "@/src/features/metrics/view-models";
 
-function MetricHeaderSection(data: MetricHeaderVM) {
+const MetricHeaderSection = ({ data }: { data: MetricHeaderVM }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleUpdateMetric = () => {
+  const handleModalOpen = () => {
     setModalOpen(true);
   };
 
@@ -27,7 +27,7 @@ function MetricHeaderSection(data: MetricHeaderVM) {
         <button
           className="absolute top-5 right-5 rounded-full p-2 bg-[#F4C3CD] text-[#C76576] hover:bg-[#E897A3] transition"
           aria-label="Edit Metric"
-          onClick={handleUpdateMetric}
+          onClick={handleModalOpen}
         >
           <PencilSimple size={22} />
         </button>
@@ -46,7 +46,6 @@ function MetricHeaderSection(data: MetricHeaderVM) {
             title="Default Unit"
             value={safeLabel(data?.defaultUnit, "Not Set")}
           />
-
           <DataLabel
             title="Category"
             value={safeLabel(data?.category?.name, "Not Set")}
@@ -56,7 +55,6 @@ function MetricHeaderSection(data: MetricHeaderVM) {
               </span>
             }
           />
-
           <DataLabel
             title="Visibility"
             value={safeLabel(data?.isPublic, "Not Set")}
@@ -69,7 +67,6 @@ function MetricHeaderSection(data: MetricHeaderVM) {
             }
           />
         </div>
-
         <DataLabel
           title="Description"
           value={safeLabel(data?.description, "Not Description Provided")}
@@ -90,6 +87,6 @@ function MetricHeaderSection(data: MetricHeaderVM) {
       </section>
     </>
   );
-}
+};
 
 export default MetricHeaderSection;
