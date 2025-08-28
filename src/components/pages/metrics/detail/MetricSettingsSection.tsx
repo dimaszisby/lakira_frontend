@@ -3,15 +3,14 @@ import SectionCard from "@/src/components/ui/SectionCard";
 import SubsectionCard from "@/src/components/ui/SubsectionCard";
 import { PencilSimple } from "phosphor-react";
 import { safeLabel } from "@/utils/helpers/labelHelper";
-import { formatDate } from "@/utils/helpers/dateHelper"; // Ensure this utility exists for date formatting
-import { UserMetricDetailResponseDTO } from "@/src/types/dtos/metric.dto";
+import { formatDate } from "@/utils/helpers/dateHelper";
+import { MetricSettingsVM } from "@/src/features/metrics/view-models";
 
 /**
- * Settings panel for a metric, showing goal, alert, and display options.
+ * @description Settings panel for a metric, showing goal, alert, and display options.
  */
-const MetricSettingsSection: React.FC<{
-  settings: UserMetricDetailResponseDTO["settings"] | null;
-}> = ({ settings }) => {
+
+function MetricSettingsSection(data: MetricSettingsVM) {
   return (
     <SectionCard
       title="Metric Settings"
@@ -36,19 +35,19 @@ const MetricSettingsSection: React.FC<{
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <DataLabel
                 title="Goal Type"
-                value={safeLabel(settings?.goalType, "Not Set")}
+                value={safeLabel(data?.goalType, "Not Set")}
               />
               <DataLabel
                 title="Goal Value"
-                value={safeLabel(settings?.goalValue, "Not Set")}
+                value={safeLabel(data?.goalValue, "Not Set")}
               />
               <DataLabel
                 title="Start Date"
-                value={safeLabel(formatDate(settings?.startDate), "Not Set")}
+                value={safeLabel(formatDate(data?.startDate), "Not Set")}
               />
               <DataLabel
                 title="Deadline Date"
-                value={safeLabel(formatDate(settings?.deadlineDate), "Not Set")}
+                value={safeLabel(formatDate(data?.deadlineDate), "Not Set")}
               />
             </div>
           </SubsectionCard>
@@ -58,12 +57,9 @@ const MetricSettingsSection: React.FC<{
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <DataLabel
                 title="Warn"
-                value={safeLabel(settings?.alertThresholds)}
+                value={safeLabel(data?.alertThresholds)}
               />
-              <DataLabel
-                title="Alert"
-                value={safeLabel(settings?.alertEnabled)}
-              />
+              <DataLabel title="Alert" value={safeLabel(data?.alertEnabled)} />
             </div>
           </SubsectionCard>
         </div>
@@ -73,25 +69,25 @@ const MetricSettingsSection: React.FC<{
           <div className="grid grid-flow-col gap-x-4 gap-y-2 wrap">
             <DataLabel
               title="Show on Dashboard"
-              value={safeLabel(settings?.displayOptions?.showOnDashboard)}
+              value={safeLabel(data?.display?.showOnDashboard)}
             />
             <DataLabel
               title="Priortiy"
-              value={safeLabel(settings?.displayOptions?.priority)}
+              value={safeLabel(data?.display?.priority)}
             />
             <DataLabel
               title="Chart Type"
-              value={safeLabel(settings?.displayOptions?.chartType, "Default")}
+              value={safeLabel(data?.display?.chartType, "Default")}
             />
             <DataLabel
               title="Color"
-              value={safeLabel(settings?.displayOptions?.color, "Default")}
+              value={safeLabel(data?.display?.color, "Default")}
             />
           </div>
         </SubsectionCard>
       </div>
     </SectionCard>
   );
-};
+}
 
 export default MetricSettingsSection;
