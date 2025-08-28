@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DataLabel from "@/src/components/ui/DataLabel";
 import SectionCard from "@/src/components/ui/SectionCard";
 import SubsectionCard from "@/src/components/ui/SubsectionCard";
@@ -6,11 +7,13 @@ import { safeLabel } from "@/utils/helpers/labelHelper";
 import { formatDate } from "@/utils/helpers/dateHelper";
 import { MetricSettingsVM } from "@/src/features/metrics/view-models";
 
-/**
- * @description Settings panel for a metric, showing goal, alert, and display options.
- */
+const MetricSettingsSection = ({ data }: { data: MetricSettingsVM }) => {
+  const [modalOpen, setModalOpen] = useState(false);
 
-function MetricSettingsSection(data: MetricSettingsVM) {
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
   return (
     <SectionCard
       title="Metric Settings"
@@ -88,6 +91,6 @@ function MetricSettingsSection(data: MetricSettingsVM) {
       </div>
     </SectionCard>
   );
-}
+};
 
 export default MetricSettingsSection;

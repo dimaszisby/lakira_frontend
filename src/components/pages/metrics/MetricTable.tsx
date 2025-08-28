@@ -1,7 +1,7 @@
 import { memo } from "react";
 import MetricDesktopTable from "./MetricDesktopTable";
 import MetricMobileTable from "./MetricMobileTable";
-import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
+import { MetricPreviewResponseDTO } from "@/src/features/metrics/metric.dto";
 import { MetricTableProps } from "./type";
 
 const MetricTable = memo(

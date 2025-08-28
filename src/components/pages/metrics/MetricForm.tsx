@@ -1,11 +1,11 @@
 "use client";
 
+// WIP Metric Form
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "react-use";
-import { MetricResponseDTO } from "@/src/types/dtos/metric.dto";
-import ReusableFormField from "@/src/components/ui/ReusableFormField";
 import {
   useCreateMetric,
   useDeleteMetric,
@@ -19,21 +19,26 @@ import {
 import PrimaryButton from "../../ui/PrimaryButton";
 import Modal from "../../ui/Modal";
 import ErrorMessage from "../../ui/ErrorMessage";
+import CategorySelect from "../../ui/CategorySelect";
+import { MetricFormInitial } from "@/src/features/metrics/form.initial";
+import { TextField } from "../../ui/TextField";
+import { TextAreaField } from "../../ui/TextArea";
 
 interface MetricModalProps {
   open: boolean;
   onClose: () => void;
   metricId: string | null;
-  initialMetric?: MetricResponseDTO | null;
+  initialMetric?: MetricFormInitial | null;
 }
 
-export const MetricForm: React.FC<MetricModalProps> = ({
+export const MetricForm = ({
   open,
   onClose,
   metricId,
   initialMetric,
-}) => {
-  const makeDefaults = (m?: MetricResponseDTO | null): MetricFormInputs => ({
+}: MetricModalProps) => {
+  // Default Form handling
+  const makeDefaults = (m?: MetricFormInitial | null): MetricFormInputs => ({
     categoryId: m?.categoryId ?? undefined,
     originalMetricId: m?.originalMetricId ?? undefined,
     name: m?.name ?? "",
@@ -52,6 +57,7 @@ export const MetricForm: React.FC<MetricModalProps> = ({
     setError,
     clearErrors,
     watch,
+    control,
   } = useForm<MetricFormInputs>({
     resolver: zodResolver(metricFormSchema),
     mode: "onChange",
@@ -61,7 +67,6 @@ export const MetricForm: React.FC<MetricModalProps> = ({
   // Rehydrate -> open/change with a stable key
   const formKey = open ? initialMetric?.id ?? "create" : "closed";
   const prevKeyRef = useRef<string | null>(null);
-
   useEffect(() => {
     if (!open) return;
     // only run when switching between "create" and a specific metric (or between metrics)
@@ -70,6 +75,9 @@ export const MetricForm: React.FC<MetricModalProps> = ({
     reset(makeDefaults(initialMetric));
     prevKeyRef.current = formKey;
   }, [initialMetric, open, formKey, reset]);
+
+  // Build unique ids per field (prevents collisions if multiple forms render)
+  const fieldId = (name: string) => `metric-${formKey}-${name}`;
 
   // * ========== Duplicate Name Check ==========
 
@@ -99,7 +107,6 @@ export const MetricForm: React.FC<MetricModalProps> = ({
 
   // derive current “has conflict” + current error state
   const hasValidateError = !!errors.name && errors.name.type === "validate";
-
   // Reconcile dup result with current mode (ignore same record on edit)
   useEffect(() => {
     if (!shouldCheckDup) {
@@ -130,7 +137,7 @@ export const MetricForm: React.FC<MetricModalProps> = ({
     clearErrors,
   ]);
 
-  // * Mutations
+  // * ========== Mutations ==========
   const {
     createMetric,
     isPending: isCreating,
@@ -148,6 +155,8 @@ export const MetricForm: React.FC<MetricModalProps> = ({
     isPending: isDeleting,
     error: deleteError,
   } = useDeleteMetric();
+
+  const isBusyInputs = isSubmitting || isCreating || isUpdating;
 
   // * Submit Handlers
   const onSubmit = async (data: MetricFormInputs) => {
@@ -170,9 +179,9 @@ export const MetricForm: React.FC<MetricModalProps> = ({
   };
 
   const onDeleteSubmit = async () => {
-    if (!initialMetric) return;
+    if (!metricId) return;
     try {
-      await deleteMetric(initialMetric.id);
+      await deleteMetric(metricId);
       reset();
       onClose();
     } catch (error) {
@@ -200,30 +209,47 @@ export const MetricForm: React.FC<MetricModalProps> = ({
         <ErrorMessage message={errorMsg} className="mb-2"></ErrorMessage>
 
         <div className="flex flex-col gap-8">
-          <ReusableFormField
+          <TextField
+            id={fieldId("name")}
             label="Metric Name"
-            type="text"
-            register={register("name")}
+            registration={register("name")}
             placeholder="e.g., Steps Walked"
             error={errors.name?.message}
-            isSubmitting={isSubmitting || isCreating || isUpdating}
+            disabled={isBusyInputs}
+            required
           />
 
-          <ReusableFormField
-            label="Description"
-            type="text"
-            register={register("description")}
-            placeholder="Optional description"
-            isSubmitting={isSubmitting || isCreating || isUpdating}
-          />
-
-          <ReusableFormField
+          <TextField
+            id={fieldId("defaultUnit")}
             label="Default Unit"
-            type="text"
-            register={register("defaultUnit")}
+            registration={register("defaultUnit")}
             placeholder="e.g., km, reps, hours"
             error={errors.defaultUnit?.message}
-            isSubmitting={isSubmitting || isCreating || isUpdating}
+            disabled={isBusyInputs}
+            required
+          />
+
+          <Controller
+            name="categoryId"
+            control={control}
+            render={({ field }) => (
+              <CategorySelect
+                value={field.value}
+                onChange={field.onChange}
+                selectedOptionHint={initialMetric?.categoryHint}
+              />
+            )}
+          />
+
+          {/* Should be a TextArea */}
+          <TextAreaField
+            id={fieldId("description")}
+            label="Description"
+            registration={register("description")}
+            placeholder="i.e., Metric to calculate muscle growth over time"
+            error={errors.description?.message}
+            disabled={isBusyInputs}
+            rows={5}
           />
         </div>
 

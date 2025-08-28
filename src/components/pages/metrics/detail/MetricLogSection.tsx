@@ -1,5 +1,3 @@
-// components/pages/metrics/detail/MetricLogSection.tsx
-
 "use client";
 
 import React, { useState } from "react";
@@ -12,10 +10,7 @@ import SkeletonLoader from "@/src/components/ui/SekeletonLoader";
 import { Pagination } from "@/src/components/ui/Pagination";
 import LogTable from "../../logs/LogTable";
 import MetricLogFormModal from "../../logs/LogFormModal";
-
-// hooks
-import useMetricLogs from "@/src/hooks/useMetricLogs";
-import { useCreateMetricLogDummy } from "@/src/features/metricLogs/hooks";
+import { useCreateMetricLogDummy, useMetricLogs } from "@/src/features/metricLogs/hooks";
 import { MetricLogResponseDTO } from "@/src/types/dtos/metric-log.dto";
 import EmptyDataIndicator from "@/src/components/ui/EmptyDataIndicator";
 

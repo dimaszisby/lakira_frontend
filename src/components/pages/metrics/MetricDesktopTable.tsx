@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Table, TableColumn } from "@/components/ui/Table";
-import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
+import { MetricPreviewResponseDTO } from "@/src/features/metrics/metric.dto";
 import { MetricTableProps } from "./type";
 import { SERVER_SORTABLE_COLUMNS } from "@/src/features/metrics/sort";
 

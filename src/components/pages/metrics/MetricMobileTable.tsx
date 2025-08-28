@@ -1,7 +1,7 @@
 import { memo } from "react";
 import SwipeableCard from "@/components/ui/SwipeableCard";
 import MetricLibraryMobileCard from "./MetricLibraryMobileCard";
-import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
+import { MetricPreviewResponseDTO } from "@/src/features/metrics/metric.dto";
 import { MetricTableProps } from "./type";
 
 const MetricMobileTable = memo(

@@ -1,5 +1,5 @@
 import { SortChipsColumns } from "@/components/ui/SortChipGroup";
-import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
+import { MetricPreviewResponseDTO } from "@/src/features/metrics/metric.dto";
 
 // Shared types for both desktop and mobile tables
 // TODO: Create a generic for shared between Metric, MetricCategory, and Logs

@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import classNames from "classnames";
 import IconLabel from "@/components/ui/IconLabel";
 import { Eye, Tag, CalendarBlank, FolderSimple } from "phosphor-react";
-import { MetricPreviewResponseDTO } from "@/src/types/dtos/metric.dto";
+import { MetricPreviewResponseDTO } from "@/src/features/metrics/metric.dto";
 
 export interface MetricLibraryCardProps {
   metric: MetricPreviewResponseDTO;
