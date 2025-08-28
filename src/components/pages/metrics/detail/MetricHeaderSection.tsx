@@ -1,35 +1,14 @@
-// MetricHeaderSection.tsx
-
 import { useState } from "react";
-
-// components
 import DataLabel from "@/src/components/ui/DataLabel";
 import { PencilSimple } from "phosphor-react";
-
-// types
-import { MetricCore } from "@/src/features/metrics/types";
-
-// utlis
 import { formatDate } from "@/utils/helpers/dateHelper";
 import { safeLabel } from "@/utils/helpers/labelHelper";
 import MetricForm from "../MetricForm";
+import { MetricHeaderVM } from "@/src/features/metrics/view-models";
 
-/**
- * Metric detail header card, matching Figma layout.
- * A static view components, only updated when the parent view refreshed.
- */
-
-interface MetricHeaderSectionProps {
-  metric: MetricCore;
-}
-
-const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
-  // TODO - Developer Note: Metric Category component is WIP
-
-  // States
+function MetricHeaderSection(data: MetricHeaderVM) {
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Handlers
   const handleUpdateMetric = () => {
     setModalOpen(true);
   };
@@ -37,10 +16,10 @@ const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
   return (
     <>
       <MetricForm
-        metricId={metric.id}
+        metricId={data.id}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        initialMetric={metric}
+        initialMetric={data}
       />
 
       <section className="w-full bg-white rounded-2xl shadow p-6 relative">
@@ -56,7 +35,7 @@ const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
         {/* Metric Title */}
         <DataLabel
           title="Metric Name"
-          value={safeLabel(metric?.name, "Not Set")}
+          value={safeLabel(data?.name, "Not Set")}
           valueStyle="xl"
           className="mb-4"
         />
@@ -65,27 +44,27 @@ const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
         <div className="flex sm:flex-wrap lg:flex-row gap-8 items-start content-start justify-start mb-4">
           <DataLabel
             title="Default Unit"
-            value={safeLabel(metric?.defaultUnit, "Not Set")}
+            value={safeLabel(data?.defaultUnit, "Not Set")}
           />
 
           <DataLabel
             title="Category"
-            value={safeLabel(metric?.categoryId, "Not Set")}
+            value={safeLabel(data?.category?.name, "Not Set")}
             renderValue={
-              <div className={`block bg-gray-200 px-3 py-1  rounded-xl`}>
-                {metric.categoryId ? `${metric.categoryId}` : "No Category"}
-              </div>
+              <span className={`block bg-gray-200 px-3 py-1  rounded-xl`}>
+                {data.category ? data.category.name : "No Category"}
+              </span>
             }
           />
 
           <DataLabel
             title="Visibility"
-            value={safeLabel(metric?.isPublic, "Not Set")}
+            value={safeLabel(data?.isPublic, "Not Set")}
             renderValue={
               <div
-                className={metric.isPublic ? "text-green-600" : "text-red-600"}
+                className={data.isPublic ? "text-green-600" : "text-red-600"}
               >
-                {metric.isPublic ? "Public" : "Private"}
+                {data.isPublic ? "Public" : "Private"}
               </div>
             }
           />
@@ -93,7 +72,7 @@ const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
 
         <DataLabel
           title="Description"
-          value={safeLabel(metric?.description, "Not Description Provided")}
+          value={safeLabel(data?.description, "Not Description Provided")}
           valueStyle="sm"
         />
 
@@ -101,16 +80,16 @@ const MetricHeaderSection = ({ metric }: MetricHeaderSectionProps) => {
         <div className="flex gap-6 text-xs text-gray-400 mt-3">
           <span>
             Created at&nbsp;
-            {formatDate(metric?.createdAt, true)}
+            {formatDate(data?.createdAt, true)}
           </span>
           <span>
             Updated at&nbsp;
-            {formatDate(metric?.updatedAt, true)}
+            {formatDate(data?.updatedAt, true)}
           </span>
         </div>
       </section>
     </>
   );
-};
+}
 
 export default MetricHeaderSection;
